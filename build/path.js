@@ -30,5 +30,5 @@ module.exports = {
     scssVendorDir: path.resolve(rootPath, 'scss'),
     outputDir: path.resolve(rootPath, 'dist'),
     testOutputDir: path.resolve(rootPath, 'test'),
-    aliases: {}
+    aliases: { taoItems: srcDir }
 };

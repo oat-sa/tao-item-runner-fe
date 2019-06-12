@@ -56,6 +56,8 @@
         "postcss": "^7.0.17",
         "postcss-scss": "^2.0.0",
         "promise-limit": "^2.7.0",
+        "qunit": "^2.9.2",
+        "require-css": "^0.1.10",
         "rollup": "^1.15.1",
         "rollup-plugin-alias": "^1.5.2",
         "rollup-plugin-handlebars-plus": "^0.2.4",

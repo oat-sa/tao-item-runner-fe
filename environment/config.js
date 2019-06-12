@@ -20,18 +20,20 @@ requirejs.config({
     baseUrl: '/',
     paths: {
         css: '/node_modules/require-css/css',
-        json: '/node_modules/requirejs-plugins/src/json',
-        text: '/node_modules/text/text',
+        // json: '/node_modules/requirejs-plugins/src/json',
+        // text: '/node_modules/text/text',
 
         /* TEST related */
         'qunit-parameterize': '/environment/qunit2-parameterize',
-        qunit: '/node_modules/qunit/qunit'
-        // 'test/ui': '/test',
+        qunit: '/node_modules/qunit/qunit',
+        'test/taoItems': '/test',
 
-        // core: '/node_modules/@oat-sa/tao-core-sdk/dist/core',
-        // util: '/node_modules/@oat-sa/tao-core-sdk/dist/util',
-        // jquery: '/node_modules/jquery/jquery',
-        // lodash: '/node_modules/lodash/lodash',
+        taoItems: '/dist',
+        core: '/node_modules/@oat-sa/tao-core-sdk/dist/core',
+        util: '/node_modules/@oat-sa/tao-core-sdk/dist/util',
+        lib: '/node_modules/@oat-sa/tao-core-libs/dist',
+        jquery: '/node_modules/jquery/jquery',
+        lodash: '/node_modules/lodash/lodash'
         // moment: '/node_modules/moment/min/moment-with-locales',
         // handlebars: '/node_modules/handlebars/dist/handlebars.amd',
 
@@ -65,7 +67,7 @@ requirejs.config({
     waitSeconds: 15
 });
 
-define('qunitLibs', ['qunit/qunit', 'css!qunit/qunit.css', 'css!basicStyle/basic.css']);
+define('qunitLibs', ['qunit/qunit', 'css!qunit/qunit.css']);
 define('qunitEnv', ['qunitLibs', 'qunit-parameterize'], function() {
     requirejs.config({ nodeIdCompat: true });
 });
