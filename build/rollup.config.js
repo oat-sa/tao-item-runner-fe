@@ -19,29 +19,9 @@
 import path from 'path';
 import glob from 'glob';
 import alias from 'rollup-plugin-alias';
-import handlebarsPlugin from 'rollup-plugin-handlebars-plus';
-import cssResolve from './css-resolve';
 import externalAlias from './external-alias';
-import resolve from 'rollup-plugin-node-resolve';
 
 const { srcDir, outputDir, aliases } = require('./path');
-const Handlebars = require('handlebars');
-
-/**
- * Support of handlebars 1.3.0
- * TODO remove once migrated to hbs >= 3.0.0
- */
-const originalVisitor = Handlebars.Visitor;
-Handlebars.Visitor = function() {
-    return originalVisitor.call(this);
-};
-Handlebars.Visitor.prototype = Object.create(originalVisitor.prototype);
-Handlebars.Visitor.prototype.accept = function() {
-    try {
-        originalVisitor.prototype.accept.apply(this, arguments);
-    } catch (e) {}
-};
-/* --------------------------------------------------------- */
 
 const inputs = glob.sync(path.join(srcDir, '**', '*.js'));
 
@@ -63,22 +43,10 @@ export default inputs.map(input => {
         },
         external: ['jquery', 'lodash', ...localExternals],
         plugins: [
-            cssResolve(),
             externalAlias(['core', 'util']),
             alias({
                 resolve: ['.js', '.json', '.tpl'],
                 ...aliases
-            }),
-            resolve(),
-            handlebarsPlugin({
-                handlebars: {
-                    id: 'handlebars',
-                    options: {
-                        sourceMap: false
-                    },
-                    module: Handlebars
-                },
-                templateExtension: '.tpl'
             })
         ]
     };
