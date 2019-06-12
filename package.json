@@ -6,9 +6,6 @@
         "dist",
         "src"
     ],
-    "directories": {
-        "test": "test"
-    },
     "scripts": {
         "test:keepAlive": "node ./build/webserver.js",
         "test": "node ./build/testrunner.js",
@@ -36,7 +33,6 @@
     },
     "homepage": "https://github.com/oat-sa/tao-item-runner-fe#readme",
     "devDependencies": {
-        "@oat-sa/browserslist-config-tao": "^0.1.0",
         "@oat-sa/tao-core-libs": "^0.1.0",
         "@oat-sa/tao-core-sdk": "^0.3.0",
         "eslint": "^5.16.0",
@@ -55,7 +51,5 @@
         "rollup": "^1.15.1",
         "rollup-plugin-alias": "^1.5.2"
     },
-    "browserslist": [
-        "extends @oat-sa/browserslist-config-tao"
-    ]
+    "dependencies": {}
 }
