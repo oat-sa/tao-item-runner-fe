@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2014 (original work) Open Assessment Technlogies SA (under the project TAO-PRODUCT);
+ * Copyright (c) 2014-2019 (original work) Open Assessment Technlogies SA (under the project TAO-PRODUCT);
  *
  */
 
@@ -52,14 +52,12 @@ import assetManagerFactory from 'taoItems/assets/manager';
  *
  * @param {String} [providerName] - the name of a provider previously registered see {@link itemRunnerFactory#register}
  * @param {Object} [data] - the data of the item to run
+ * @param {Object} [options]
  *
  * @returns {itemRunner}
  */
 var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) {
     var provider, providers, assetManager;
-
-    //contains the bound events.
-    var events = {};
 
     //flow structure to manage sync calls in an async context.
     var flow = {
@@ -318,8 +316,6 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
              * Call back when clear is done
              */
             var clearDone = function clearDone() {
-                //events = {};
-
                 /**
                  * The item is ready.
                  * @event itemRunner#clear

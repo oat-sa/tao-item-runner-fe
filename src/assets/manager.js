@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2015-2017 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2015-2019 (original work) Open Assessment Technologies SA;
  *
  */
 
@@ -83,9 +83,11 @@ var checkStrategy = function checkStrategy(strategy) {
  *
  * @exports taoItems/assets/manager
  * @namespace assetManagerFactory
+ * @returns {Object} Asset manager
  */
 var assetManagerFactory = function assetManagerFactory(strategies, data, options) {
-    var cache = {};
+    var cache = {},
+        assetManager;
 
     strategies = _.isArray(strategies) ? strategies : [strategies];
     data = data || {};
@@ -96,7 +98,7 @@ var assetManagerFactory = function assetManagerFactory(strategies, data, options
     /**
      * A brand new asset manager is created by the factory
      */
-    var assetManager = {
+    assetManager = {
         /**
          * The stack of strategies that would be used to resolve the asset path
          * @type {AssetStrategy[]}
