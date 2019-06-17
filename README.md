@@ -1,7 +1,5 @@
 # tao-item-runner
 
-TAO Item runner
-
 Item runner of TAO.
 
 Available scripts in the project:
