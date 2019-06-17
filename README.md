@@ -15,3 +15,5 @@ Available scripts in the project:
     -   `PORT` (optional environment variable, default: 8082): Test server listen port
 -   `npm run build`: build for production into `dist` directory
 -   `npm run lint`: check syntax of code
+
+[Runner quick overview](/src/runner/README.md)
