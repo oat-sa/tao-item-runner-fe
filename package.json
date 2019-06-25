@@ -1,6 +1,6 @@
 {
     "name": "@oat-sa/tao-item-runner",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "displayName": "TAO Item Runner",
     "description": "TAO Item Runner modules",
     "files": [
@@ -11,6 +11,7 @@
         "test:keepAlive": "node ./build/webserver.js",
         "test": "node ./build/testrunner.js",
         "build": "rollup --config ./build/rollup.config.js",
+        "build:watch": "rollup --config ./build/rollup.config.js --watch",
         "lint": "eslint src test",
         "prepare": "npm run build"
     },
