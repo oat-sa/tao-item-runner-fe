@@ -1,6 +1,6 @@
 {
     "name": "@oat-sa/tao-item-runner",
-    "version": "0.2.2",
+    "version": "0.3.0",
     "displayName": "TAO Item Runner",
     "description": "TAO Item Runner modules",
     "files": [
@@ -8,7 +8,7 @@
         "src"
     ],
     "scripts": {
-        "test": "npx qunit-testrunner",
+        "test": "npx qunit-testrunner -v",
         "test:keepAlive": "npx qunit-testrunner --keepalive",
         "test:cov": "npx qunit-testrunner --cov --coverage-instrument-spec=dist/**/*.js",
         "coverage": "nyc report",
