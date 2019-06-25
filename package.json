@@ -8,8 +8,11 @@
         "src"
     ],
     "scripts": {
-        "test:keepAlive": "node ./build/webserver.js",
-        "test": "node ./build/testrunner.js",
+        "test": "npx qunit-testrunner",
+        "test:keepAlive": "npx qunit-testrunner --keepalive",
+        "test:cov": "npx qunit-testrunner --cov --coverage-instrument-spec=dist/**/*.js",
+        "coverage": "nyc report",
+        "coverage:html": "nyc report --reporter=lcov && open-cli coverage/lcov-report/index.html",
         "build": "rollup --config ./build/rollup.config.js",
         "build:watch": "rollup --config ./build/rollup.config.js --watch",
         "lint": "eslint src test",
@@ -37,6 +40,7 @@
     "devDependencies": {
         "@oat-sa/tao-core-libs": "^0.1.0",
         "@oat-sa/tao-core-sdk": "^0.3.1",
+        "@oat-sa/tao-qunit-testrunner": "^0.1.0",
         "eslint": "^5.16.0",
         "eslint-plugin-es": "^1.4.0",
         "eslint-plugin-jsdoc": "^8.0.1",
@@ -47,6 +51,8 @@
         "lodash": "2.4.1",
         "moment": "2.11.1",
         "node-qunit-puppeteer": "^1.0.12",
+        "nyc": "^14.1.1",
+        "open-cli": "^5.0.0",
         "promise-limit": "^2.7.0",
         "qunit": "^2.9.2",
         "require-css": "^0.1.10",
