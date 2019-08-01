@@ -16,38 +16,37 @@
  * Copyright (c) 2019 (original work) Open Assessment Technologies SA ;
  */
 
-requirejs.config({
-    baseUrl: '/',
-    paths: {
-        css: '/node_modules/require-css/css',
+define(['/node_modules/@oat-sa/tao-core-libs/dist/pathdefinition.js'], function(libPathDefinition) {
+    requirejs.config({
+        baseUrl: '/',
+        paths: Object.assign({}, {
+            css: '/node_modules/require-css/css',
 
-        /* TEST related */
-        'qunit-parameterize': '/environment/qunit2-parameterize',
-        qunit: '/node_modules/qunit/qunit',
-        'test/taoItems': '/test',
+            /* TEST related */
+            'qunit-parameterize': '/environment/qunit2-parameterize',
+            qunit: '/node_modules/qunit/qunit',
+            'test/taoItems': '/test',
 
-        taoItems: '/dist',
-        core: '/node_modules/@oat-sa/tao-core-sdk/dist/core',
-        util: '/node_modules/@oat-sa/tao-core-sdk/dist/util',
-        lib: '/node_modules/@oat-sa/tao-core-libs/dist',
-        jquery: '/node_modules/jquery/jquery',
-        lodash: '/node_modules/lodash/lodash'
-    },
-    shim: {
-        'qunit-parameterize': {
-            deps: ['qunit/qunit']
-        }
-    },
-    waitSeconds: 15
+            taoItems: '/dist',
+            core: '/node_modules/@oat-sa/tao-core-sdk/dist/core',
+            util: '/node_modules/@oat-sa/tao-core-sdk/dist/util',
+        }, libPathDefinition),
+        shim: {
+            'qunit-parameterize': {
+                deps: ['qunit/qunit']
+            }
+        },
+        waitSeconds: 15
+    });
+
+    define('qunitLibs', ['qunit/qunit', 'css!qunit/qunit.css']);
+    define('qunitEnv', ['qunitLibs', 'qunit-parameterize'], function() {
+        requirejs.config({ nodeIdCompat: true });
+    });
+
+    define('context', ['module'], function(module) {
+        return module.config();
+    });
+
+    define('i18n', [], () => text => text);
 });
-
-define('qunitLibs', ['qunit/qunit', 'css!qunit/qunit.css']);
-define('qunitEnv', ['qunitLibs', 'qunit-parameterize'], function() {
-    requirejs.config({ nodeIdCompat: true });
-});
-
-define('context', ['module'], function(module) {
-    return module.config();
-});
-
-define('i18n', [], () => text => text);
