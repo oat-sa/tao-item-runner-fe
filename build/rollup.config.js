@@ -19,7 +19,8 @@
 import path from 'path';
 import glob from 'glob';
 import alias from 'rollup-plugin-alias';
-import externalAlias from './external-alias';
+import wildcardExternal from '@oat-sa/rollup-plugin-wildcard-external';
+import istanbul from 'rollup-plugin-istanbul';
 
 const { srcDir, outputDir, aliases } = require('./path');
 
@@ -49,11 +50,12 @@ export default inputs.map(input => {
         },
         external: ['jquery', 'lodash', ...localExternals],
         plugins: [
-            externalAlias(['core', 'util']),
+            wildcardExternal(['core/**', 'util/**']),
             alias({
                 resolve: ['.js', '.json', '.tpl'],
                 ...aliases
-            })
+            }),
+            ...(process.env.COVERAGE ? [istanbul()] : []),
         ]
     };
 });
