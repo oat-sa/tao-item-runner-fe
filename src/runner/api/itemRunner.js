@@ -427,6 +427,19 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
             if (_.isFunction(provider.renderFeedbacks)) {
                 provider.renderFeedbacks.call(this, feedbacks, itemSession, done);
             }
+        },
+
+        /**
+         * Provide access the data about APIP the content and related media files
+         *
+         * @returns {Object} the item's APIP data section
+         */
+        getApipData: function getApipData() {
+            var apipData = {};
+            if (_.isFunction(provider.renderFeedbacks)) {
+                apipData = provider.getApipData.call(this);
+            }
+            return apipData;
         }
     });
 };

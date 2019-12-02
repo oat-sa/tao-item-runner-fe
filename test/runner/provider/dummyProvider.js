@@ -87,6 +87,10 @@ define(['lodash'], function(_) {
             });
 
             done(renderingQueue);
+        },
+
+        getApipData: function getApipData() {
+            return this._item.getApipAccessibility();
         }
     };
 
