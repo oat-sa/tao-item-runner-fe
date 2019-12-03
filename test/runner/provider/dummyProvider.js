@@ -90,7 +90,7 @@ define(['lodash'], function(_) {
         },
 
         getApipData: function getApipData() {
-            return this._item.getApipAccessibility();
+            return this._item && _.isFunction(this._item.getApipAccessibility) && this._item.getApipAccessibility() || null;
         }
     };
 

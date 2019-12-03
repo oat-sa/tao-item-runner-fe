@@ -741,28 +741,37 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
     });
 
 
+    QUnit.module('ItemRunner getApipData', {
+        afterEach: function(assert) {
+            //reset the providers
+            delete itemRunner.providers;
+        }
+    });
+
     QUnit.test('getApipData', function(assert) {
-        assert.expect(1);
+        var ready = assert.async();
+        var $container;
+
+        assert.expect(2);
 
         $container = $('#item-container');
         assert.equal($container.length, 1, 'the item container exists');
 
         itemRunner.register('dummyProvider', dummyProvider);
 
-        itemRunner('dummyProvider', {
+        let runner = itemRunner('dummyProvider', {
             type: 'number',
             value: 0
-        })
-            .on('render', function() {
-                this.renderFeedbacks({"f":'f'}, ["f"], function(renderingQueue) {
-                    var apipData = itemRunner.getApipData();
-                    var apipDataIsApplicable = _.isNull(apipData) || _.isPlainObject(apipData);
-                    assert.ok(apipDataIsApplicable, 'getApipData returns a null or the parsed object');
-                    //TODO: add test for parsed data when it will be available
-                });
-            })
-            .init()
-            .render($container);
+        });
+        runner.on('render', function() {
+            var apipData = runner.getApipData();
+            var apipDataIsApplicable = _.isNull(apipData) || _.isPlainObject(apipData);
+            assert.ok(apipDataIsApplicable, 'getApipData returns a null or the parsed object');
+            // TODO: add test for parsed data when it will be available
 
+            ready();
+        })
+        .init()
+        .render($container);
     });
 });
