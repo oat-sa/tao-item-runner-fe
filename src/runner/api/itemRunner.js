@@ -390,6 +390,16 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
             return this;
         },
 
+
+        /**
+         * Get the item data.
+         *
+         * @returns {Object} the item's data
+         */
+        getData: function() {
+            return data;
+        },
+
         /**
          * Get the responses of the running item.
          *

@@ -739,4 +739,27 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .init()
             .render($container);
     });
+
+    QUnit.test('access item data', function(assert) {
+        var ready = assert.async();
+        var dummyData = {
+            alpha: 1,
+            beta: 'sample string',
+            gamma: {
+                delta: 'string 2',
+                epsilon: 'string 2',
+            }
+        };
+
+        assert.expect(1);
+
+        itemRunner.register('dummyProvider', dummyProvider);
+
+        itemRunner('dummyProvider', dummyData)
+            .on('init', function() {
+                assert.deepEqual(this.getData(), dummyData, 'getData() returns expected data');
+                ready();
+            })
+            .init();
+    });
 });
