@@ -49,6 +49,7 @@ It works in 2 steps:
 |    setState(Object state) : ItemRunner        +------------------->  setState(Object state) : void              |
 |    getResponses() : Array                     +------------------->  getResponses() : Array                     |
 |    clear() : ItemRunner                       +------------------->  clear() : void                             |
+|    getData() : Object                         +------------------->  getData() : Object                         |
 |                                                  |               |                                              |
 |    on(event,Func handler) : ItemRunner           |               |                                              |
 |    off(event) : ItemRunner                       |               |                                              |

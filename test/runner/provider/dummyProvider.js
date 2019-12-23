@@ -67,6 +67,10 @@ define(['lodash'], function(_) {
             }
         },
 
+        getData: function() {
+            return this._data;
+        },
+
         getResponses: function() {
             var responses = [];
             var input = this.container.querySelector('input');
