@@ -18,7 +18,7 @@
 
 import path from 'path';
 import glob from 'glob';
-import alias from 'rollup-plugin-alias';
+import alias from '@rollup/plugin-alias';
 import wildcardExternal from '@oat-sa/rollup-plugin-wildcard-external';
 import istanbul from 'rollup-plugin-istanbul';
 
@@ -30,11 +30,10 @@ const inputs = glob.sync(path.join(srcDir, '**', '*.js'));
  * Define all modules as external, so rollup won't bundle them together.
  */
 const localExternals = inputs.map(
-    input =>
-        `taoItems/${path
-            .relative(srcDir, input)
-            .replace(/\\/g, '/')
-            .replace(/\.js$/, '')}`
+    input => `taoItems/${path
+        .relative(srcDir, input)
+        .replace(/\\/g, '/')
+        .replace(/\.js$/, '')}`
 );
 
 export default inputs.map(input => {
@@ -52,8 +51,9 @@ export default inputs.map(input => {
         plugins: [
             wildcardExternal(['core/**', 'util/**']),
             alias({
-                resolve: ['.js', '.json', '.tpl'],
-                ...aliases
+                entries: Object.assign({
+                    resolve: ['.js', '.json', '.tpl']
+                }, aliases)
             }),
             ...(process.env.COVERAGE ? [istanbul()] : []),
         ]
