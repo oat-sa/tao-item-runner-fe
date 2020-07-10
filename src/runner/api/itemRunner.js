@@ -360,12 +360,12 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
          * This should have the effect to restore the item state.
          *
          * @param {Object} state - the new state
-         * @param {boolean} isRestore - state restoring or not
+         * @param {boolean} isInitialStateRestore - state restoring or not
          * @returns {itemRunner}
          *
          * @fires itemRunner#error if the state type doesn't match
          */
-        setState: function(state, isRestore) {
+        setState: function(state, isInitialStateRestore) {
             if (!_.isPlainObject(state)) {
                 return this.trigger(
                     'error',
@@ -376,7 +376,7 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
             //the state will be applied only when the rendering is made
             if (flow.render.done === false) {
                 flow.render.pending.push(function() {
-                    this.setState(state, isRestore);
+                    this.setState(state, isInitialStateRestore);
                 });
             } else {
                 if (_.isFunction(provider.setState)) {
@@ -385,7 +385,7 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
                      * @callback SetStateItemProvider
                      * @param {Object} state -  the state to set
                      */
-                    provider.setState.call(this, state, isRestore);
+                    provider.setState.call(this, state, isInitialStateRestore);
                 }
             }
             return this;
