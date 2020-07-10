@@ -360,12 +360,12 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
          * This should have the effect to restore the item state.
          *
          * @param {Object} state - the new state
-         * @param {boolean} isInitialStateRestore - state restoring or not
+         * @param {boolean} [isInitialStateRestore] - state restoring or not
          * @returns {itemRunner}
          *
          * @fires itemRunner#error if the state type doesn't match
          */
-        setState: function(state, isInitialStateRestore) {
+        setState: function(state, isInitialStateRestore = false) {
             if (!_.isPlainObject(state)) {
                 return this.trigger(
                     'error',
