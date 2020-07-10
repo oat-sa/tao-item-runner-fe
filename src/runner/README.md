@@ -38,23 +38,23 @@ It works in 2 steps:
 2. Create an `ItemRunner` instance for each item to render.
 
 ```
-+--------------------------------------------------+               +----------------------------------------------+
-|    ItemRunner                                    |               |    Provider                                  |
-|--------------------------------------------------|               |----------------------------------------------|
-|    <construct>(Object itemData) : ItemRunner     |               |                                              |
-|                                                  |  delegates    |                                              |
-|    init() : ItemRunner                        +------------------->  init(Object data, Func done) : void        |
-|    render(HTMLElement elt) : ItemRunner       +------------------->  render(HTMLElement elt, Func done) : void  |
-|    getState() : Object                        +------------------->  getState() : Object                        |
-|    setState(Object state) : ItemRunner        +------------------->  setState(Object state) : void              |
-|    getResponses() : Array                     +------------------->  getResponses() : Array                     |
-|    clear() : ItemRunner                       +------------------->  clear() : void                             |
-|    getData() : Object                         +------------------->  getData() : Object                         |
-|                                                  |               |                                              |
-|    on(event,Func handler) : ItemRunner           |               |                                              |
-|    off(event) : ItemRunner                       |               |                                              |
-|    trigger(event) : ItemRunner                   |               |                                              |
-+--------------------------------------------------+               +----------------------------------------------+
++--------------------------------------------------------------------+               +-----------------------------------------------------+
+|    ItemRunner                                                      |               |    Provider                                         |
+|--------------------------------------------------------------------|               |-----------------------------------------------------|
+|    <construct>(Object itemData) : ItemRunner                       |               |                                                     |
+|                                                                    |  delegates    |                                                     |
+|    init() : ItemRunner                                           +------------------->  init(Object data, Func done) : void              |
+|    render(HTMLElement elt) : ItemRunner                          +------------------->  render(HTMLElement elt, Func done) : void        |
+|    getState() : Object                                           +------------------->  getState() : Object                              |
+|    setState(Object state, boolean isInitial) : ItemRunner        +------------------->  setState(Object state, boolean isInitial) : void |
+|    getResponses() : Array                                        +------------------->  getResponses() : Array                           |
+|    clear() : ItemRunner                                          +------------------->  clear() : void                                   |
+|    getData() : Object                                            +------------------->  getData() : Object                               |
+|                                                                    |               |                                                     |
+|    on(event,Func handler) : ItemRunner                             |               |                                                     |
+|    off(event) : ItemRunner                                         |               |                                                     |
+|    trigger(event) : ItemRunner                                     |               |                                                     |
++--------------------------------------------------------------------+               +-----------------------------------------------------+
 ```
 
 ## Sample
@@ -112,7 +112,7 @@ define(['itemRunner'], function(itemRunner){
             //oh something has changed in the item, you can store the state.
         })
 
-        .setState(initialState)
+        .setState(initialState, isInitialStateRestore)
 
         .init();    //let's start
 });
