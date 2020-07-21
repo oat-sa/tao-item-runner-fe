@@ -257,7 +257,7 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
 
             //check elt
             if (!(elt instanceof HTMLElement) && !(elt instanceof $)) {
-                return self.trigger(
+                return this.trigger(
                     'error',
                     new Error('A valid HTMLElement (or a jquery element) at least is required to render the item')
                 );
@@ -364,7 +364,7 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
          */
         setState(state, isInitialStateRestore = false) {
 
-            if (!state || typeof state !== 'object') {
+            if (!state || typeof state !== 'object' || Array.isArray(statestate))) {
                 return this.trigger(
                     'error',
                     new Error(`The item's state must be a JavaScript Plain Object: ${typeof state} given`)

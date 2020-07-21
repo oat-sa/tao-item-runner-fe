@@ -254,39 +254,41 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
     });
 
     QUnit.test('Render an item into wrong element', function(assert) {
-        var ready = assert.async();
-        assert.expect(2);
+        const ready = assert.async();
+        assert.expect(3);
 
         itemRunner.register('dummyProvider', dummyProvider);
 
         itemRunner('dummyProvider', {
             type: 'search'
         })
-            .on('error', function(message) {
-                assert.ok(typeof message === 'string', 'An error message is given');
-                assert.ok(message.length > 0, 'A non empty message is given');
-                ready();
-            })
-            .init()
-            .render('item-container');
+        .on('error', err => {
+            assert.ok(err instanceof Error, 'An error is thrown');
+            assert.ok(typeof err.message === 'string', 'An error message is given');
+            assert.ok(err.message.length > 0, 'A non empty message is given');
+            ready();
+        })
+        .init()
+        .render('item-container');
     });
 
     QUnit.test('Render an item without element', function(assert) {
-        var ready = assert.async();
-        assert.expect(2);
+        const ready = assert.async();
+        assert.expect(3);
 
         itemRunner.register('dummyProvider', dummyProvider);
 
         itemRunner('dummyProvider', {
             type: 'search'
         })
-            .on('error', function(message) {
-                assert.ok(typeof message === 'string', 'An error message is given');
-                assert.ok(message.length > 0, 'A non empty message is given');
-                ready();
-            })
-            .init()
-            .render();
+        .on('error', err => {
+            assert.ok(err instanceof Error, 'An error is thrown');
+            assert.ok(typeof err.message === 'string', 'An error message is given');
+            assert.ok(err.message.length > 0, 'A non empty message is given');
+            ready();
+        })
+        .init()
+        .render();
     });
 
     QUnit.test('No clear in the provider', function(assert) {
@@ -470,22 +472,23 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
     });
 
     QUnit.test('set a wrong state', function(assert) {
-        var ready = assert.async();
-        assert.expect(2);
+        const ready = assert.async();
+        assert.expect(3);
 
         itemRunner.register('dummyProvider', dummyProvider);
 
-        var runner = itemRunner('dummyProvider', {
+        itemRunner('dummyProvider', {
             type: 'number',
             value: 0
         })
-            .on('error', function(message) {
-                assert.ok(typeof message === 'string', 'An error message is given');
-                assert.ok(message.length > 0, 'A non empty message is given');
-                ready();
-            })
-            .init()
-            .setState([]);
+        .on('error', err => {
+            assert.ok(err instanceof Error, 'An error is sent in parameter');
+            assert.ok(typeof err.message === 'string', 'An error message is given');
+            assert.ok(err.message.length > 0, 'A non empty message is given');
+            ready();
+        })
+        .init()
+        .setState([]);
     });
 
     QUnit.test('get the current state', function(assert) {
