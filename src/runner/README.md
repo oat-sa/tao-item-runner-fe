@@ -1,11 +1,5 @@
-# Runner quick overview
+# Item Runner overview
 
-> The API is in draft
-
-There should'nt be major changes expect for the following points:
- - `init` may also received the state (but it seems setState to be sufficient)
- - the `ready` event may be renamed to `render` or aliased.
- - some other events can appears
 
 ## Concept
 
@@ -50,6 +44,12 @@ It works in 2 steps:
 |    getResponses() : Array                                        +------------------->  getResponses() : Array                           |
 |    clear() : ItemRunner                                          +------------------->  clear() : void                                   |
 |    getData() : Object                                            +------------------->  getData() : Object                               |
+|    enable() : Promise                                            +------------------->  enable() : Promise                               |
+|    disable() : Promise                                           +------------------->  disable() : Promise                              |
+|    isDisabled() : boolean                                          |               |                                                     | 
+|    show() : Promise                                              +------------------->  show() : Promise                                 |
+|    hide() : Promise                                              +------------------->   hide() : Promise                                |
+|    isHidden() : boolean                                            |               |                                                     | 
 |                                                                    |               |                                                     |
 |    on(event,Func handler) : ItemRunner                             |               |                                                     |
 |    off(event) : ItemRunner                                         |               |                                                     |
