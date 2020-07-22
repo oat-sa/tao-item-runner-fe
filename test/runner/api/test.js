@@ -741,4 +741,228 @@ define(['jquery', 'taoItems/runner/api/itemRunner', 'test/taoItems/runner/provid
             })
             .init();
     });
+
+
+    QUnit.module('ItemRunner enable/disable', {
+        afterEach() {
+            //reset the provides
+            itemRunner.providers = noop;
+        }
+    });
+
+    QUnit.test('Disable has no effect before rendering',  assert => {
+        const ready = assert.async();
+        assert.expect(2);
+
+        itemRunner.register('dummyProvider', Object.assign({}, dummyProvider,{
+            disable(){
+                assert.ok(false, 'The provider should not be executed');
+            }
+        }));
+
+        itemRunner('dummyProvider', {
+            type: 'number'
+        })
+        .on('init', function(){
+            assert.equal(this.isDisabled(), false, 'The runner starts enabled');
+
+            this.disable().then( () => {
+                assert.equal(this.isDisabled(), false, 'We cannot set it disabled before rendered');
+                ready();
+            });
+        })
+        .init();
+    });
+
+    QUnit.test('Disable/enable calls the providers',  assert => {
+        const ready = assert.async();
+        const $container = $('#item-container');
+        assert.expect(5);
+
+        itemRunner.register('dummyProvider', Object.assign({}, dummyProvider,{
+            disable(){
+                assert.ok(true, 'The provider disables the item');
+                return new Promise( resolve => setTimeout(resolve, 20));
+            },
+            enable(){
+                assert.ok(true, 'The provider enables the item');
+                return new Promise( resolve => setTimeout(resolve, 10));
+            }
+        }));
+
+        itemRunner('dummyProvider', {
+            type: 'number'
+        })
+        .on('render', function(){
+            assert.equal(this.isDisabled(), false, 'The runner starts enabled');
+            this.disable()
+                .then( () => {
+                    assert.equal(this.isDisabled(), true, 'The runner is now disabled');
+                    return this.enable();
+                })
+                .then( () => {
+                    assert.equal(this.isDisabled(), false, 'The runner is now enabled');
+
+                    ready();
+                });
+        })
+        .init()
+        .render($container);
+    });
+
+    QUnit.test('Disable/enable are asynchronous',  assert => {
+        const ready = assert.async();
+        const $container = $('#item-container');
+        assert.expect(8);
+
+        itemRunner.register('dummyProvider', Object.assign({}, dummyProvider,{
+            disable(){
+                assert.ok(true, 'The provider disables the item');
+                return new Promise( resolve => setTimeout(resolve, 10));
+            },
+            enable(){
+                assert.ok(true, 'The provider enables the item');
+                return new Promise( resolve => setTimeout(resolve, 20));
+            }
+        }));
+
+        itemRunner('dummyProvider', {
+            type: 'number'
+        })
+        .on('render', function(){
+            assert.equal(this.isDisabled(), false, 'The runner starts enabled');
+            const disablePromise = this.disable();
+            this.enable();
+            disablePromise
+                .then( () => this.enable() )
+                .then( () => {
+                    assert.equal(this.isDisabled(), false, 'The runner is enabled');
+                    return this.disable();
+                })
+                .then( () => {
+                    assert.equal(this.isDisabled(), true, 'The runner is disabled');
+                    return this.disable(); //not called
+                })
+                .then( () => this.enable() )
+                .then( () => {
+                    assert.equal(this.isDisabled(), false, 'The runner is enabled');
+                    return this.enable();   //not called
+                })
+                .then(  ready );
+        })
+        .init()
+        .render($container);
+    });
+
+
+    QUnit.module('ItemRunner show/hide', {
+        afterEach() {
+            //reset the provides
+            itemRunner.providers = noop;
+        }
+    });
+
+    QUnit.test('Show has no effect before rendering',  assert => {
+        const ready = assert.async();
+        assert.expect(2);
+
+        itemRunner.register('dummyProvider', Object.assign({}, dummyProvider,{
+            show(){
+                assert.ok(false, 'The provider should not be executed');
+            }
+        }));
+
+        itemRunner('dummyProvider', {
+            type: 'number'
+        })
+        .on('init', function(){
+
+            assert.equal(this.isHidden(), true, 'The runner is hidden unless rendered');
+            this.show().then( () => {
+                assert.equal(this.isHidden(), true, 'The runner remains hidden unless rendered');
+                ready();
+            });
+        })
+        .init();
+    });
+
+    QUnit.test('Show/hide calls the providers',  assert => {
+        const ready = assert.async();
+        const $container = $('#item-container');
+        assert.expect(5);
+
+        itemRunner.register('dummyProvider', Object.assign({}, dummyProvider,{
+            show(){
+                assert.ok(true, 'The provider shows the item');
+                return new Promise( resolve => setTimeout(resolve, 20));
+            },
+            hide(){
+                assert.ok(true, 'The provider hides the item');
+                return new Promise( resolve => setTimeout(resolve, 10));
+            }
+        }));
+
+        itemRunner('dummyProvider', {
+            type: 'number'
+        })
+        .on('render', function(){
+            assert.equal(this.isHidden(), false, 'The runner starts shown');
+            this.hide()
+                .then( () => {
+                    assert.equal(this.isHidden(), true, 'The runner is now hidden');
+                    return this.show();
+                })
+                .then( () => {
+                    assert.equal(this.isHidden(), false, 'The runner is shown');
+
+                    ready();
+                });
+        })
+        .init()
+        .render($container);
+    });
+
+    QUnit.test('Disable/enable are asynchronous',  assert => {
+        const ready = assert.async();
+        const $container = $('#item-container');
+        assert.expect(8);
+
+        itemRunner.register('dummyProvider', Object.assign({}, dummyProvider,{
+            show(){
+                assert.ok(true, 'The provider shows the item');
+                return new Promise( resolve => setTimeout(resolve, 10));
+            },
+            hide(){
+                assert.ok(true, 'The provider hides the item');
+                return new Promise( resolve => setTimeout(resolve, 20));
+            }
+        }));
+
+        itemRunner('dummyProvider', {
+            type: 'number'
+        })
+        .on('render', function(){
+            assert.equal(this.isHidden(), false, 'The runner starts shown');
+            const hidePromise = this.hide();
+            this.show();
+            hidePromise
+                .then( () => this.show() )
+                .then( () => {
+                    assert.equal(this.isHidden(), false, 'The runner is shown');
+                    return this.hide();
+                })
+                .then( () => {
+                    assert.equal(this.isHidden(), true, 'The runner is hidden');
+                    return this.hide(); //not called
+                })
+                .then( () => this.show() )
+                .then( () => {
+                    assert.equal(this.isHidden(), false, 'The runner is shown');
+                    return this.show();   //not called
+                })
+                .then(  ready );
+        })
+        .init()
+        .render($container);
+    });
 });

@@ -107,6 +107,9 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
             return url.toString();
         });
 
+    let disabled = false;
+    let hidden = true;
+
     /**
      * The itemRunner
      * @typedef {Object} itemRunner
@@ -236,6 +239,8 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
                     flow.render.pending = [];
                 }
 
+                hidden = false;
+
                 /**
                  * The item is rendered
                  * @event itemRunner#render
@@ -363,8 +368,7 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
          * @fires itemRunner#error if the state type doesn't match
          */
         setState(state, isInitialStateRestore = false) {
-
-            if (!state || typeof state !== 'object' || Array.isArray(statestate))) {
+            if (!state || typeof state !== 'object' || Array.isArray(state)) {
                 return this.trigger(
                     'error',
                     new Error(`The item's state must be a JavaScript Plain Object: ${typeof state} given`)
@@ -432,6 +436,79 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
             if (typeof provider.renderFeedbacks === 'function') {
                 provider.renderFeedbacks.call(this, feedbacks, itemSession, done);
             }
+        },
+
+        /**
+         * Call the provider's enable method
+         * @returns {Promise}
+         */
+        enable(){
+            if (disabled && typeof provider.enable === 'function') {
+                return provider.enable.call(this).then( result => {
+                    disabled = false;
+                    return result;
+                });
+            }
+            return Promise.resolve();
+        },
+
+        /**
+         * Call the provider's disable method
+         * @returns {itemRunner}
+         */
+        disable(){
+            if (!disabled && flow.render.done && typeof provider.disable === 'function') {
+                return provider.disable.call(this).then( result => {
+                    disabled = true;
+                    return result;
+                });
+            }
+            return Promise.resolve();
+        },
+
+        /**
+         * Is the item runner disabled
+         * @returns {boolean} true if disabled
+         */
+        isDisabled(){
+            return disabled;
+        },
+
+        /**
+         * Call the provider's show method
+         * @returns {itemRunner}
+         */
+        show(){
+            if (hidden && flow.render.done  && typeof provider.show === 'function') {
+                return provider.show.call(this).then( result => {
+                    hidden = false;
+                    return result;
+                });
+            }
+            return Promise.resolve();
+        },
+
+        /**
+         * Call the provider's hide method
+         * @returns {itemRunner}
+         */
+        hide(){
+            if (!hidden && flow.render.done && typeof provider.hide === 'function') {
+                return provider.hide.call(this).then( result => {
+                    hidden = true;
+                    return result;
+                });
+            }
+            return Promise.resolve();
+        },
+
+
+        /**
+         * Is the item runner hidden
+         * @returns {boolean} true if hidden
+         */
+        isHidden(){
+            return hidden ;
         }
     });
 };
