@@ -56,7 +56,6 @@ import assetManagerFactory from 'taoItems/assets/manager';
  * @returns {itemRunner}
  */
 const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, options = {}) {
-
     //flow structure to manage sync calls in an async context.
     const flow = {
         init: {
@@ -147,7 +146,6 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
          * @fires itemRunner#init
          */
         init(newData) {
-
             /**
              * Call back when init is done
              */
@@ -157,8 +155,8 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
                     flow.init.done = true;
 
                     flow.init.pending
-                        .filter( pendingTask => typeof pendingTask === 'function' )
-                        .forEach( pendingTask => pendingTask() );
+                        .filter(pendingTask => typeof pendingTask === 'function')
+                        .forEach(pendingTask => pendingTask());
 
                     flow.init.pending = [];
                 }
@@ -202,7 +200,10 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
             try {
                 this.assetManager = assetManagerFactory(strategies, contextData, assetManagerOptions);
             } catch (err) {
-                this.trigger('error', new Error(`Something was wrong while configuring the asset manager : ${err.message}`));
+                this.trigger(
+                    'error',
+                    new Error(`Something was wrong while configuring the asset manager : ${err.message}`)
+                );
             }
 
             return this;
@@ -223,7 +224,6 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
          * @fires itemRunner#responsechange  the provider is reponsible to trigger this event
          */
         render(elt, newOptions = {}) {
-
             /**
              * Call back when render is done
              */
@@ -233,8 +233,8 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
                     flow.render.done = true;
 
                     flow.render.pending
-                        .filter( pendingTask => typeof pendingTask === 'function' )
-                        .forEach( pendingTask => pendingTask() );
+                        .filter(pendingTask => typeof pendingTask === 'function')
+                        .forEach(pendingTask => pendingTask());
 
                     flow.render.pending = [];
                 }
@@ -274,7 +274,7 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
             }
 
             if (flow.init.done === false) {
-                flow.init.pending.push(() => this.render(elt, options) );
+                flow.init.pending.push(() => this.render(elt, options));
             } else {
                 //we keep a reference to the container
                 if (elt instanceof $) {
@@ -286,7 +286,6 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
                 //the state will be applied only when the rendering is made
 
                 if (typeof provider.render === 'function') {
-
                     /**
                      * Calls the provider's render
                      * @callback RendertItemProvider
@@ -296,7 +295,6 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
                      * @param {Object} [options.state] - pass initial item state to method render() in case the item runner provider require initial state to render
                      */
                     provider.render.call(this, this.container, renderDone, options);
-
                 } else {
                     renderDone();
                 }
@@ -312,7 +310,6 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
          * @fires itemRunner#clear
          */
         clear() {
-
             /**
              * Call back when clear is done
              */
@@ -345,7 +342,6 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
          * @returns {Object|Null} state
          */
         getState() {
-
             if (typeof provider.getState === 'function') {
                 /**
                  * Calls the provider's getState
@@ -377,19 +373,17 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
 
             //the state will be applied only when the rendering is made
             if (flow.render.done === false) {
-                flow.render.pending.push(() => this.setState(state, isInitialStateRestore) );
-
+                flow.render.pending.push(() => this.setState(state, isInitialStateRestore));
             } else if (typeof provider.setState === 'function') {
                 /**
-                * Calls the provider's setState
-                * @callback SetStateItemProvider
-                * @param {Object} state -  the state to set
-                */
+                 * Calls the provider's setState
+                 * @callback SetStateItemProvider
+                 * @param {Object} state -  the state to set
+                 */
                 provider.setState.call(this, state, isInitialStateRestore);
             }
             return this;
         },
-
 
         /**
          * Get the item data.
@@ -442,9 +436,9 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
          * Call the provider's enable method
          * @returns {Promise}
          */
-        enable(){
+        enable() {
             if (disabled && typeof provider.enable === 'function') {
-                return provider.enable.call(this).then( result => {
+                return provider.enable.call(this).then(result => {
                     disabled = false;
                     return result;
                 });
@@ -456,9 +450,9 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
          * Call the provider's disable method
          * @returns {itemRunner}
          */
-        disable(){
+        disable() {
             if (!disabled && flow.render.done && typeof provider.disable === 'function') {
-                return provider.disable.call(this).then( result => {
+                return provider.disable.call(this).then(result => {
                     disabled = true;
                     return result;
                 });
@@ -470,7 +464,7 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
          * Is the item runner disabled
          * @returns {boolean} true if disabled
          */
-        isDisabled(){
+        isDisabled() {
             return disabled;
         },
 
@@ -478,9 +472,9 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
          * Call the provider's show method
          * @returns {itemRunner}
          */
-        show(){
-            if (hidden && flow.render.done  && typeof provider.show === 'function') {
-                return provider.show.call(this).then( result => {
+        show() {
+            if (hidden && flow.render.done && typeof provider.show === 'function') {
+                return provider.show.call(this).then(result => {
                     hidden = false;
                     return result;
                 });
@@ -492,9 +486,9 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
          * Call the provider's hide method
          * @returns {itemRunner}
          */
-        hide(){
+        hide() {
             if (!hidden && flow.render.done && typeof provider.hide === 'function') {
-                return provider.hide.call(this).then( result => {
+                return provider.hide.call(this).then(result => {
                     hidden = true;
                     return result;
                 });
@@ -502,13 +496,12 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
             return Promise.resolve();
         },
 
-
         /**
          * Is the item runner hidden
          * @returns {boolean} true if hidden
          */
-        isHidden(){
-            return hidden ;
+        isHidden() {
+            return hidden;
         }
     });
 };
@@ -534,7 +527,10 @@ itemRunnerFactory.register = function registerProvider(name, provider) {
     if (typeof name !== 'string' || name.length <= 0) {
         throw new TypeError('It is required to give a name to your provider.');
     }
-    if (typeof provider !== 'object' || (typeof provider.init !== 'function' && typeof provider.render!== 'function')) {
+    if (
+        typeof provider !== 'object' ||
+        (typeof provider.init !== 'function' && typeof provider.render !== 'function')
+    ) {
         throw new TypeError('A provider is an object that contains at least an init function or a render function.');
     }
 
