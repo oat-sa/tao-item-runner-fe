@@ -106,8 +106,8 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
             return url.toString();
         });
 
-    let disabled = false;
-    let hidden = true;
+    let suspended = false;
+    let closed = false;
 
     /**
      * The itemRunner
@@ -238,8 +238,6 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
 
                     flow.render.pending = [];
                 }
-
-                hidden = false;
 
                 /**
                  * The item is rendered
@@ -433,49 +431,13 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
         },
 
         /**
-         * Call the provider's enable method
+         * Call the provider's suspend method
          * @returns {Promise}
          */
-        enable() {
-            if (disabled && typeof provider.enable === 'function') {
-                return provider.enable.call(this).then(result => {
-                    disabled = false;
-                    return result;
-                });
-            }
-            return Promise.resolve();
-        },
-
-        /**
-         * Call the provider's disable method
-         * @returns {itemRunner}
-         */
-        disable() {
-            if (!disabled && flow.render.done && typeof provider.disable === 'function') {
-                return provider.disable.call(this).then(result => {
-                    disabled = true;
-                    return result;
-                });
-            }
-            return Promise.resolve();
-        },
-
-        /**
-         * Is the item runner disabled
-         * @returns {boolean} true if disabled
-         */
-        isDisabled() {
-            return disabled;
-        },
-
-        /**
-         * Call the provider's show method
-         * @returns {itemRunner}
-         */
-        show() {
-            if (hidden && flow.render.done && typeof provider.show === 'function') {
-                return provider.show.call(this).then(result => {
-                    hidden = false;
+        suspend() {
+            if (!suspended && !closed && flow.render.done  && typeof provider.suspend === 'function') {
+                return provider.suspend.call(this).then(result => {
+                    suspended = true;
                     return result;
                 });
             }
@@ -484,12 +446,12 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
 
         /**
          * Call the provider's hide method
-         * @returns {itemRunner}
+         * @returns {Promise}
          */
-        hide() {
-            if (!hidden && flow.render.done && typeof provider.hide === 'function') {
-                return provider.hide.call(this).then(result => {
-                    hidden = true;
+        close() {
+            if (!closed && flow.render.done && typeof provider.close === 'function') {
+                return provider.close.call(this).then(result => {
+                    closed = true;
                     return result;
                 });
             }
@@ -497,12 +459,36 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
         },
 
         /**
-         * Is the item runner hidden
-         * @returns {boolean} true if hidden
+         * Call the provider's resume method.
+         * We can resume a previously suspended or closed item.
+         * @returns {Promise}
          */
-        isHidden() {
-            return hidden;
-        }
+        resume() {
+            if ( (suspended || closed) && flow.render.done && typeof provider.resume === 'function') {
+                return provider.resume.call(this).then(result => {
+                    suspended = false;
+                    closed = false;
+                    return result;
+                });
+            }
+            return Promise.resolve();
+        },
+
+        /**
+         * Is the item runner suspended
+         * @returns {boolean} true if suspended
+         */
+        isSuspended() {
+            return suspended;
+        },
+
+        /**
+         * Is the item runner closed
+         * @returns {boolean} true if closed
+         */
+        isClosed(){
+            return closed;
+        },
     });
 };
 
