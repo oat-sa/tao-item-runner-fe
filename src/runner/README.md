@@ -1,11 +1,5 @@
-# Runner quick overview
+# Item Runner overview
 
-> The API is in draft
-
-There should'nt be major changes expect for the following points:
- - `init` may also received the state (but it seems setState to be sufficient)
- - the `ready` event may be renamed to `render` or aliased.
- - some other events can appears
 
 ## Concept
 
@@ -50,6 +44,11 @@ It works in 2 steps:
 |    getResponses() : Array                                        +------------------->  getResponses() : Array                           |
 |    clear() : ItemRunner                                          +------------------->  clear() : void                                   |
 |    getData() : Object                                            +------------------->  getData() : Object                               |
+|    suspend() : Promise                                           +------------------->  suspend() : Promise                               |
+|    close() : Promise                                             +------------------->  close() : Promise                              |
+|    resume() : Promise                                            +------------------->  resume() : Promise                                 |
+|    isSuspended() : boolean                                         |               |                                                     | 
+|    isClosed() : boolean                                            |               |                                                     | 
 |                                                                    |               |                                                     |
 |    on(event,Func handler) : ItemRunner                             |               |                                                     |
 |    off(event) : ItemRunner                                         |               |                                                     |
