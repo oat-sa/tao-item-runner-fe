@@ -435,7 +435,7 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
          * @returns {Promise}
          */
         suspend() {
-            if (!suspended && !closed && flow.render.done  && typeof provider.suspend === 'function') {
+            if (!suspended && !closed && flow.render.done && typeof provider.suspend === 'function') {
                 return provider.suspend.call(this).then(result => {
                     suspended = true;
                     return result;
