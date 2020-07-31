@@ -253,7 +253,7 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
                 this.trigger('ready');
             };
 
-            options = Object.assign(options, newOptions);
+            options = Object.assign(options || {}, newOptions);
             if (!options.state) {
                 options.state = {};
             }
