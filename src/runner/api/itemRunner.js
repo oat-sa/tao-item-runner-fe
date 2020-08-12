@@ -435,7 +435,7 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
          * @returns {Promise}
          */
         suspend() {
-            if (!suspended && !closed && flow.render.done && typeof provider.suspend === 'function') {
+            if (!suspended && flow.render.done && typeof provider.suspend === 'function') {
                 return provider.suspend.call(this).then(result => {
                     suspended = true;
                     return result;
@@ -460,14 +460,13 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
 
         /**
          * Call the provider's resume method.
-         * We can resume a previously suspended or closed item.
+         * We can resume a previously suspended item.
          * @returns {Promise}
          */
         resume() {
-            if ( (suspended || closed) && flow.render.done && typeof provider.resume === 'function') {
+            if (suspended && flow.render.done && typeof provider.resume === 'function') {
                 return provider.resume.call(this).then(result => {
                     suspended = false;
-                    closed = false;
                     return result;
                 });
             }
