@@ -61,3 +61,7 @@ typings/
 .next
 
 dist
+
+# IDEs
+.vscode/
+.idea/
