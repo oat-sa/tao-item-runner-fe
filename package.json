@@ -1,6 +1,6 @@
 {
     "name": "@oat-sa/tao-item-runner",
-    "version": "0.6.1",
+    "version": "0.7.0",
     "displayName": "TAO Item Runner",
     "description": "TAO Item Runner modules",
     "files": [
