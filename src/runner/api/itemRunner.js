@@ -393,6 +393,19 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
         },
 
         /**
+         * Replaces item data in rendered item
+         * @param {object} itemData
+         * @returns {itemRunner}
+         */
+        setData(itemData) {
+            data = itemData;
+            if (!closed && typeof provider.setData === 'function') {
+                provider.setData.call(this, itemData);
+            }
+            return this;
+        },
+
+        /**
          * Get the responses of the running item.
          *
          * @returns {Object} the item's responses
