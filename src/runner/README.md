@@ -44,11 +44,12 @@ It works in 2 steps:
 |    getResponses() : Array                                        +------------------->  getResponses() : Array                           |
 |    clear() : ItemRunner                                          +------------------->  clear() : void                                   |
 |    getData() : Object                                            +------------------->  getData() : Object                               |
-|    suspend() : Promise                                           +------------------->  suspend() : Promise                               |
-|    close() : Promise                                             +------------------->  close() : Promise                              |
-|    resume() : Promise                                            +------------------->  resume() : Promise                                 |
-|    isSuspended() : boolean                                         |               |                                                     | 
-|    isClosed() : boolean                                            |               |                                                     | 
+|    setData(Object itemData) : ItemRunner                         +------------------->  setData(Object itemData) : void                  |
+|    suspend() : Promise                                           +------------------->  suspend() : Promise                              |
+|    close() : Promise                                             +------------------->  close() : Promise                                |
+|    resume() : Promise                                            +------------------->  resume() : Promise                               |
+|    isSuspended() : boolean                                         |               |                                                     |
+|    isClosed() : boolean                                            |               |                                                     |
 |                                                                    |               |                                                     |
 |    on(event,Func handler) : ItemRunner                             |               |                                                     |
 |    off(event) : ItemRunner                                         |               |                                                     |
