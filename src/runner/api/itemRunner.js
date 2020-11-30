@@ -395,14 +395,14 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
         /**
          * Replaces item data in rendered item
          * @param {object} itemData
-         * @returns {itemRunner}
+         * @returns {Promise}
          */
         setData(itemData) {
             data = itemData;
-            if (!closed && typeof provider.setData === 'function') {
-                provider.setData.call(this, itemData);
+            if (typeof provider.setData === 'function') {
+                return provider.setData.call(this, itemData);
             }
-            return this;
+            return Promise.resolve();
         },
 
         /**

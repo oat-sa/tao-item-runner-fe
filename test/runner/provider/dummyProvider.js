@@ -73,6 +73,7 @@ define(['lodash'], function(_) {
 
         setData: function(data) {
             this._data = data;
+            return Promise.resolve();
         },
 
         getResponses: function() {

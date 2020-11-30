@@ -743,9 +743,10 @@ define(['jquery', 'taoItems/runner/api/itemRunner', 'test/taoItems/runner/provid
                 assert.deepEqual(this.getData(), {}, 'getData() returns empty data');
             })
             .on('render', function () {
-                this.setData(dummyData);
-                assert.deepEqual(this.getData(), dummyData, 'getData() returns new data');
-                ready();
+                this.setData(dummyData).then(() => {
+                    assert.deepEqual(this.getData(), dummyData, 'getData() returns new data');
+                    ready();
+                });
             })
             .init()
             .render($container);
