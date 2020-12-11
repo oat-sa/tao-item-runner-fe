@@ -1,6 +1,5 @@
 # Item Runner overview
 
-
 ## Concept
 
 The `ItemRunner` is the public API. A TestRunner calls the `ItemRunner` with itemData to render it and manage it's lifecycle.
@@ -44,11 +43,12 @@ It works in 2 steps:
 |    getResponses() : Array                                        +------------------->  getResponses() : Array                           |
 |    clear() : ItemRunner                                          +------------------->  clear() : void                                   |
 |    getData() : Object                                            +------------------->  getData() : Object                               |
-|    suspend() : Promise                                           +------------------->  suspend() : Promise                               |
-|    close() : Promise                                             +------------------->  close() : Promise                              |
-|    resume() : Promise                                            +------------------->  resume() : Promise                                 |
-|    isSuspended() : boolean                                         |               |                                                     | 
-|    isClosed() : boolean                                            |               |                                                     | 
+|    setData(Object itemData) : Promise                            +------------------->  setData(Object itemData) : Promise               |
+|    suspend() : Promise                                           +------------------->  suspend() : Promise                              |
+|    close() : Promise                                             +------------------->  close() : Promise                                |
+|    resume() : Promise                                            +------------------->  resume() : Promise                               |
+|    isSuspended() : boolean                                         |               |                                                     |
+|    isClosed() : boolean                                            |               |                                                     |
 |                                                                    |               |                                                     |
 |    on(event,Func handler) : ItemRunner                             |               |                                                     |
 |    off(event) : ItemRunner                                         |               |                                                     |
@@ -61,18 +61,17 @@ It works in 2 steps:
 ### Register a provider
 
 ```javascript
-define(['itemRunner', 'qtiRuntimeProvider'], function(itemRunner, qtiRuntimeProvider){
+define(['itemRunner', 'qtiRuntimeProvider'], function(itemRunner, qtiRuntimeProvider) {
     itemRunner.register('qti', qtiRuntimeProvider);
 });
 ```
-
 
 ### Manipulate the itemRunner
 
 Once the provider has been registered.
 
 ```javascript
-define(['itemRunner'], function(itemRunner){
+define(['itemRunner'], function(itemRunner) {
 
     var itemData = {
         //an object that represents the item
@@ -85,29 +84,29 @@ define(['itemRunner'], function(itemRunner){
                                         //itemRunner is a factory that creates a chainable instance.
     itemRunner('qti', itemData)         //qti is the name of the provider registered previously
 
-		.on('error', function(err){
-			//gracefull error handling
+        .on('error', function(err) {
+            //gracefull error handling
         })
 
-        .on('init', function(){         //if the initialization is asynchronous it's better to render once init is done
+        .on('init', function() {         //if the initialization is asynchronous it's better to render once init is done
             this.render(document.getElementById('item-container'));
         })
 
-        .on('ready', function(){       //ready when render is finished. The test taker can start working, you can hide the loader, start a timer, etc.
+        .on('ready', function() {       //ready when render is finished. The test taker can start working, you can hide the loader, start a timer, etc.
             var self = this;           //here this is the item runner, so you have access to getState, getResponses, etc.
 
             //you can implement here the previous/next features, for example
-            document.getElementById('next').addEventListener('click', function(){
+            document.getElementById('next').addEventListener('click', function() {
                 self.getResponses();    //store the responses
                 self.getState();        //store the state
 
-				self.clear(); 			//destroy the item propertly
+                self.clear();           //destroy the item propertly
 
                 //forward to next item.
             });
         })
 
-        .on('statechange', function(state){
+        .on('statechange', function(state) {
             //oh something has changed in the item, you can store the state.
         })
 

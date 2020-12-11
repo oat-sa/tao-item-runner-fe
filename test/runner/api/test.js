@@ -720,6 +720,38 @@ define(['jquery', 'taoItems/runner/api/itemRunner', 'test/taoItems/runner/provid
             .init();
     });
 
+    QUnit.test('set new item data', assert => {
+        const ready = assert.async();
+        assert.expect(3);
+
+        const dummyData = {
+            alpha: 1,
+            beta: 'sample string',
+            gamma: {
+                delta: 'string 2',
+                epsilon: 'string 2'
+            }
+        };
+
+        const $container = $('#item-container');
+        assert.equal($container.length, 1, 'the item container exists');
+
+        itemRunner.register('dummyProvider', dummyProvider);
+
+        itemRunner('dummyProvider', {})
+            .on('init', function () {
+                assert.deepEqual(this.getData(), {}, 'getData() returns empty data');
+            })
+            .on('render', function () {
+                this.setData(dummyData).then(() => {
+                    assert.deepEqual(this.getData(), dummyData, 'getData() returns new data');
+                    ready();
+                });
+            })
+            .init()
+            .render($container);
+    });
+
     QUnit.module('ItemRunner suspend, resume and close', {
         afterEach() {
             //reset the provides
