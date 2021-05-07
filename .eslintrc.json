@@ -1,3 +1,4 @@
 {
+    "root": true,
     "extends": "@oat-sa/eslint-config-tao/amd"
 }
