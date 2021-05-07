@@ -319,7 +319,7 @@ define(['taoItems/assets/manager'], function (assetManagerFactory) {
     QUnit.test('use caching', function (assert) {
         var strategy = {
             name: 'foo',
-            handle: (url, data) => {
+            handle: function (url, data){
                 data.counter++;
                 return `match_${data.counter}`;
             }
