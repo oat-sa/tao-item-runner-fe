@@ -60,7 +60,7 @@ var scorerFactory = function scorerFactory(providerName, options) {
     //optional params based on type
     if (_.isPlainObject(providerName)) {
         options = providerName;
-        providerName = undefined;
+        providerName = void 0;
     }
     options = options || {};
 
