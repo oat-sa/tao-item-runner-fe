@@ -1038,7 +1038,6 @@ define(['jquery', 'taoItems/runner/api/itemRunner', 'test/taoItems/runner/provid
             Object.assign(
                 {
                     setOptions(receivedOptions) {
-                        console.log(receivedOptions);
                         assert.deepEqual(receivedOptions, newOptions, 'the provider receives the updated options');
                         return Promise.resolve();
                     }
