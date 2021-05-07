@@ -62,6 +62,7 @@ var scorerFactory = function scorerFactory(providerName, options) {
         options = providerName;
         providerName = void 0;
     }
+    //eslint-disable-next-line
     options = options || {};
 
     /*

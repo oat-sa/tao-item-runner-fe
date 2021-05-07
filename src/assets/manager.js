@@ -190,7 +190,7 @@ var assetManagerFactory = function assetManagerFactory(strategies, data, options
             var inputUrl;
 
             //if caching try to load the value from the cache
-            if (options.cache && cache.hasOwnProperty(url)) {
+            if (options.cache && typeof cache.url !== 'undefined') {
                 return cache[url];
             }
 
