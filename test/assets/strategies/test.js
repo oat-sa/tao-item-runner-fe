@@ -34,7 +34,7 @@ define(['taoItems/assets/manager', 'taoItems/assets/strategies'], function(asset
         assert.ok(typeof strategies.packedUrl.handle === 'function', 'The packed url strategy has an handler');
     });
 
-    var packedUrlDataProvider = [
+    const packedUrlDataProvider = [
         {
             title: 'First img asset',
             url: 'http://my.cdn/my/test.png',
@@ -117,7 +117,7 @@ define(['taoItems/assets/manager', 'taoItems/assets/strategies'], function(asset
         assert.ok(typeof strategies.baseUrl.handle === 'function', 'The baseUrl strategy has an handler');
     });
 
-    var baseUrlDataProvider = [
+    const baseUrlDataProvider = [
         {
             title: 'absolute URL',
             baseUrl: 'http://tao.localdomain',
@@ -187,7 +187,7 @@ define(['taoItems/assets/manager', 'taoItems/assets/strategies'], function(asset
         assert.ok(typeof strategies.external.handle === 'function', 'The external strategy has an handler');
     });
 
-    var externalDataProvider = [
+    const externalDataProvider = [
         {
             title: 'absolute URL',
             url: 'http://tao.localdomain/test/test.html',
@@ -223,7 +223,7 @@ define(['taoItems/assets/manager', 'taoItems/assets/strategies'], function(asset
         assert.ok(typeof strategies.base64.handle === 'function', 'The base64 strategy has an handler');
     });
 
-    var base64DataProvider = [
+    const base64DataProvider = [
         {
             title: 'absolute URL',
             url: 'http://tao.localdomain/test/test.html',

@@ -131,7 +131,7 @@ var assetManagerFactory = function assetManagerFactory(strategies, data, options
 
         /**
          * Change the strategies
-         * @param {AssetStrategy[]} strategies - the strategies
+         * @param {AssetStrategy[]} newStrategies - the strategies
          * @throws {TypeError} if the strategy isn't defined correctly
          */
         setStrategies: function setStrategies(newStrategies) {
@@ -148,7 +148,7 @@ var assetManagerFactory = function assetManagerFactory(strategies, data, options
                     //if it's a function, we create the strategy with a generated name
                 } else if (_.isFunction(strategy)) {
                     self.addStrategy({
-                        name: 'strategy_' + (self._strategies.length + 1),
+                        name: `strategy_${self._strategies.length + 1}`,
                         handle: strategy
                     });
                 }
@@ -190,7 +190,7 @@ var assetManagerFactory = function assetManagerFactory(strategies, data, options
             var inputUrl;
 
             //if caching try to load the value from the cache
-            if (options.cache && cache.hasOwnProperty(url)) {
+            if (options.cache && typeof cache[url] !== 'undefined') {
                 return cache[url];
             }
 

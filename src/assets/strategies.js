@@ -36,12 +36,7 @@ import _ from 'lodash';
 var prependToUrl = function prependToUrl(url, base, slashcat) {
     //is slashcat we manage slash concact
     if (slashcat === true) {
-        return (
-            base.replace(/\/$/, '') +
-            '/' +
-            url.directory.replace(/^\.\//, '').replace(/^\//, '') +
-            encodeURIComponent(url.file.replace(/^\.\//, '').replace(/^\//, ''))
-        );
+        return `${base.replace(/\/$/, '')}/${url.directory.replace(/^\.\//, '').replace(/^\//, '')}${encodeURIComponent(url.file.replace(/^\.\//, '').replace(/^\//, ''))}`;
     }
 
     return base + url.directory.replace(/^\.?\//, '') + encodeURIComponent(url.file.replace(/^\.?\//, ''));
