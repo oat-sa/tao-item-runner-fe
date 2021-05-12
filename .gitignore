@@ -65,3 +65,6 @@ dist
 # IDEs
 .vscode/
 .idea/
+
+# eslint report
+eslint_report.json
