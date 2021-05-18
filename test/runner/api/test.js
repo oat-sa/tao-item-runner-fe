@@ -165,6 +165,9 @@ define(['jquery', 'taoItems/runner/api/itemRunner', 'test/taoItems/runner/provid
             .init();
     });
 
+
+
+
     QUnit.module('ItemRunner render', {
         afterEach() {
             //reset the providers
@@ -683,15 +686,17 @@ define(['jquery', 'taoItems/runner/api/itemRunner', 'test/taoItems/runner/provid
             value: 0
         })
             .on('render', function () {
-                this.renderFeedbacks({ f1: 'feedback1', f2: 'feedback2', f3: 'feedback3' }, ['f2'], function (
-                    renderingQueue
-                ) {
-                    assert.ok(renderingQueue instanceof Array, 'renderingQueue is an array');
-                    assert.equal(renderingQueue.length, 1, 'renderingQueue contains one entry');
-                    assert.equal(renderingQueue[0], 'feedback2', 'renderingQueue contains selected entry');
+                this.renderFeedbacks(
+                    { f1: 'feedback1', f2: 'feedback2', f3: 'feedback3' },
+                    ['f2'],
+                    function (renderingQueue) {
+                        assert.ok(renderingQueue instanceof Array, 'renderingQueue is an array');
+                        assert.equal(renderingQueue.length, 1, 'renderingQueue contains one entry');
+                        assert.equal(renderingQueue[0], 'feedback2', 'renderingQueue contains selected entry');
 
-                    ready();
-                });
+                        ready();
+                    }
+                );
             })
             .init()
             .render($container);
@@ -872,7 +877,6 @@ define(['jquery', 'taoItems/runner/api/itemRunner', 'test/taoItems/runner/provid
             .render($container);
     });
 
-
     QUnit.test('Close has no effect before rendering', assert => {
         const ready = assert.async();
         assert.expect(2);
@@ -982,5 +986,75 @@ define(['jquery', 'taoItems/runner/api/itemRunner', 'test/taoItems/runner/provid
             })
             .init()
             .render($container);
+    });
+
+    QUnit.test('get item runner options', assert => {
+        const ready = assert.async();
+        const options = {
+            settings: {
+                muted: true,
+                baseVolume: 75
+            }
+        };
+
+        assert.expect(1);
+
+        itemRunner.register('dummyProvider', dummyProvider);
+
+        itemRunner('dummyProvider', {}, options)
+            .on('init', function () {
+                assert.deepEqual(this.getOptions(), options, 'the options are correct');
+                ready();
+            })
+            .init();
+    });
+
+    QUnit.module('ItemRunner options', {
+        afterEach() {
+            //reset the provides
+            itemRunner.providers = noop;
+        }
+    });
+
+    QUnit.test('update item runner options', assert => {
+        const ready = assert.async();
+        const initialOptions = {
+            settings: {
+                muted: true,
+                baseVolume: 75
+            }
+        };
+        const newOptions = {
+            settings: {
+                muted: false,
+                baseVolume: 50
+            }
+        };
+
+        assert.expect(3);
+
+        itemRunner.register(
+            'dummyProvider',
+            Object.assign(
+                {
+                    setOptions(receivedOptions) {
+                        assert.deepEqual(receivedOptions, newOptions, 'the provider receives the updated options');
+                        return Promise.resolve();
+                    }
+                },
+                dummyProvider
+            )
+        );
+
+        itemRunner('dummyProvider', {}, initialOptions)
+            .on('init', function () {
+                assert.deepEqual(this.getOptions(), initialOptions, 'initial options are correct');
+
+                this.setOptions(newOptions).then(() => {
+                    assert.deepEqual(this.getOptions(), newOptions, 'updated options are correct');
+                    ready();
+                });
+            })
+            .init();
     });
 });
