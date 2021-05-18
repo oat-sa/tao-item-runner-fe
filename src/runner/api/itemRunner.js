@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2014-2020 (original work) Open Assessment Technlogies SA (under the project TAO-PRODUCT);
+ * Copyright (c) 2014-2021 (original work) Open Assessment Technlogies SA (under the project TAO-PRODUCT);
  *
  */
 
@@ -401,6 +401,28 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
             data = itemData;
             if (typeof provider.setData === 'function') {
                 return provider.setData.call(this, itemData);
+            }
+            return Promise.resolve();
+        },
+
+        /**
+         * Get the item runner options.
+         *
+         * @returns {Object} the item rendering options
+         */
+        getOptions() {
+            return this.options;
+        },
+
+        /**
+         * Replaces item runner's options.
+         * @param {Object} newOptions - the options to set
+         * @returns {Promise}
+         */
+        setOptions(newOptions = {}) {
+            this.options = newOptions;
+            if (typeof provider.setOptions === 'function') {
+                return provider.setOptions.call(this, this.options);
             }
             return Promise.resolve();
         },
