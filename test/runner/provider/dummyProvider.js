@@ -46,6 +46,7 @@ define(['lodash'], function(_) {
 
         clear: function(elt, done) {
             elt.innerHTML = '';
+            this._data = null;
             done();
         },
 
@@ -96,6 +97,9 @@ define(['lodash'], function(_) {
             });
 
             done(renderingQueue);
+        },
+        isCleared(){
+            return !this._data;
         }
     };
 

@@ -322,7 +322,7 @@ define(['jquery', 'taoItems/runner/api/itemRunner', 'test/taoItems/runner/provid
 
     QUnit.test('Clear a rendered element', assert => {
         const ready = assert.async();
-        assert.expect(4);
+        assert.expect(6);
 
         const $container = $('#item-container');
         assert.equal($container.length, 1, 'the item container exists');
@@ -335,12 +335,12 @@ define(['jquery', 'taoItems/runner/api/itemRunner', 'test/taoItems/runner/provid
         })
             .on('render', function () {
                 assert.equal($container.children().length, 1, 'the container has a child');
-
+                assert.equal(this.isCleared(), false, 'The runner is set up');
                 this.clear();
             })
             .on('clear', function () {
                 assert.equal($container.children().length, 0, 'the container children are removed');
-
+                assert.equal(this.isCleared(), true, 'The runner is cleared');
                 ready();
             })
             .init()
