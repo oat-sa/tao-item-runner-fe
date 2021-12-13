@@ -524,6 +524,13 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
         isClosed(){
             return closed;
         },
+        /**
+         * Is provider cleared
+         * @return {boolean}
+         */
+        isCleared(){
+            return provider.isCleared.call(this);
+        }
     });
 };
 
