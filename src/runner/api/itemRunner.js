@@ -529,7 +529,7 @@ const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, op
          * @return {boolean}
          */
         isCleared(){
-            return provider.isCleared.call(this);
+            return provider && provider.isCleared.call(this);
         }
     });
 };
