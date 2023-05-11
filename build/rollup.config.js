@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2019 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2019-2023 (original work) Open Assessment Technologies SA ;
  */
 
 import path from 'path';
@@ -24,16 +24,15 @@ import istanbul from 'rollup-plugin-istanbul';
 
 const { srcDir, outputDir, aliases } = require('./path');
 
-const inputs = glob.sync(path.join(srcDir, '**', '*.js'));
+const globPath = p => p.replace(/\\/g, '/');
+
+const inputs = glob.sync(globPath(path.join(srcDir, '**', '*.js')));
 
 /**
  * Define all modules as external, so rollup won't bundle them together.
  */
 const localExternals = inputs.map(
-    input => `taoItems/${path
-        .relative(srcDir, input)
-        .replace(/\\/g, '/')
-        .replace(/\.js$/, '')}`
+    input => `taoItems/${path.relative(srcDir, input).replace(/\\/g, '/').replace(/\.js$/, '')}`
 );
 
 export default inputs.map(input => {
@@ -52,9 +51,9 @@ export default inputs.map(input => {
             wildcardExternal(['core/**', 'util/**']),
             alias({
                 resolve: ['.js', '.json', '.tpl'],
-                entries : aliases
+                entries: aliases
             }),
-            ...(process.env.COVERAGE ? [istanbul()] : []),
+            ...(process.env.COVERAGE ? [istanbul()] : [])
         ]
     };
 });
