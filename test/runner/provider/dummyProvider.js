@@ -35,7 +35,7 @@ define(['lodash'], function(_) {
             var type = this._data.type || 'text';
             var val = this._data.value || '';
 
-            elt.innerHTML = '<input type="' + type + '" value="' + val + '"/>';
+            elt.innerHTML = `<input type="${type}" value="${val}"/>`;
             input = elt.querySelector('input');
             input.addEventListener('change', function() {
                 self.trigger('statechange', { value: input.value });
@@ -69,6 +69,11 @@ define(['lodash'], function(_) {
 
         getData: function() {
             return this._data;
+        },
+
+        setData: function(data) {
+            this._data = data;
+            return Promise.resolve();
         },
 
         getResponses: function() {

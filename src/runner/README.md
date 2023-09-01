@@ -1,11 +1,4 @@
-# Runner quick overview
-
-> The API is in draft
-
-There should'nt be major changes expect for the following points:
- - `init` may also received the state (but it seems setState to be sufficient)
- - the `ready` event may be renamed to `render` or aliased.
- - some other events can appears
+# Item Runner overview
 
 ## Concept
 
@@ -38,23 +31,29 @@ It works in 2 steps:
 2. Create an `ItemRunner` instance for each item to render.
 
 ```
-+--------------------------------------------------+               +----------------------------------------------+
-|    ItemRunner                                    |               |    Provider                                  |
-|--------------------------------------------------|               |----------------------------------------------|
-|    <construct>(Object itemData) : ItemRunner     |               |                                              |
-|                                                  |  delegates    |                                              |
-|    init() : ItemRunner                        +------------------->  init(Object data, Func done) : void        |
-|    render(HTMLElement elt) : ItemRunner       +------------------->  render(HTMLElement elt, Func done) : void  |
-|    getState() : Object                        +------------------->  getState() : Object                        |
-|    setState(Object state) : ItemRunner        +------------------->  setState(Object state) : void              |
-|    getResponses() : Array                     +------------------->  getResponses() : Array                     |
-|    clear() : ItemRunner                       +------------------->  clear() : void                             |
-|    getData() : Object                         +------------------->  getData() : Object                         |
-|                                                  |               |                                              |
-|    on(event,Func handler) : ItemRunner           |               |                                              |
-|    off(event) : ItemRunner                       |               |                                              |
-|    trigger(event) : ItemRunner                   |               |                                              |
-+--------------------------------------------------+               +----------------------------------------------+
++--------------------------------------------------------------------+               +-----------------------------------------------------+
+|    ItemRunner                                                      |               |    Provider                                         |
+|--------------------------------------------------------------------|               |-----------------------------------------------------|
+|    <construct>(Object itemData) : ItemRunner                       |               |                                                     |
+|                                                                    |  delegates    |                                                     |
+|    init() : ItemRunner                                           +------------------->  init(Object data, Func done) : void              |
+|    render(HTMLElement elt) : ItemRunner                          +------------------->  render(HTMLElement elt, Func done) : void        |
+|    getState() : Object                                           +------------------->  getState() : Object                              |
+|    setState(Object state, boolean isInitial) : ItemRunner        +------------------->  setState(Object state, boolean isInitial) : void |
+|    getResponses() : Array                                        +------------------->  getResponses() : Array                           |
+|    clear() : ItemRunner                                          +------------------->  clear() : void                                   |
+|    getData() : Object                                            +------------------->  getData() : Object                               |
+|    setData(Object itemData) : Promise                            +------------------->  setData(Object itemData) : Promise               |
+|    suspend() : Promise                                           +------------------->  suspend() : Promise                              |
+|    close() : Promise                                             +------------------->  close() : Promise                                |
+|    resume() : Promise                                            +------------------->  resume() : Promise                               |
+|    isSuspended() : boolean                                         |               |                                                     |
+|    isClosed() : boolean                                            |               |                                                     |
+|                                                                    |               |                                                     |
+|    on(event,Func handler) : ItemRunner                             |               |                                                     |
+|    off(event) : ItemRunner                                         |               |                                                     |
+|    trigger(event) : ItemRunner                                     |               |                                                     |
++--------------------------------------------------------------------+               +-----------------------------------------------------+
 ```
 
 ## Sample
@@ -62,18 +61,17 @@ It works in 2 steps:
 ### Register a provider
 
 ```javascript
-define(['itemRunner', 'qtiRuntimeProvider'], function(itemRunner, qtiRuntimeProvider){
+define(['itemRunner', 'qtiRuntimeProvider'], function(itemRunner, qtiRuntimeProvider) {
     itemRunner.register('qti', qtiRuntimeProvider);
 });
 ```
-
 
 ### Manipulate the itemRunner
 
 Once the provider has been registered.
 
 ```javascript
-define(['itemRunner'], function(itemRunner){
+define(['itemRunner'], function(itemRunner) {
 
     var itemData = {
         //an object that represents the item
@@ -86,33 +84,33 @@ define(['itemRunner'], function(itemRunner){
                                         //itemRunner is a factory that creates a chainable instance.
     itemRunner('qti', itemData)         //qti is the name of the provider registered previously
 
-		.on('error', function(err){
-			//gracefull error handling
+        .on('error', function(err) {
+            //gracefull error handling
         })
 
-        .on('init', function(){         //if the initialization is asynchronous it's better to render once init is done
+        .on('init', function() {         //if the initialization is asynchronous it's better to render once init is done
             this.render(document.getElementById('item-container'));
         })
 
-        .on('ready', function(){       //ready when render is finished. The test taker can start working, you can hide the loader, start a timer, etc.
+        .on('ready', function() {       //ready when render is finished. The test taker can start working, you can hide the loader, start a timer, etc.
             var self = this;           //here this is the item runner, so you have access to getState, getResponses, etc.
 
             //you can implement here the previous/next features, for example
-            document.getElementById('next').addEventListener('click', function(){
+            document.getElementById('next').addEventListener('click', function() {
                 self.getResponses();    //store the responses
                 self.getState();        //store the state
 
-				self.clear(); 			//destroy the item propertly
+                self.clear();           //destroy the item propertly
 
                 //forward to next item.
             });
         })
 
-        .on('statechange', function(state){
+        .on('statechange', function(state) {
             //oh something has changed in the item, you can store the state.
         })
 
-        .setState(initialState)
+        .setState(initialState, isInitialStateRestore)
 
         .init();    //let's start
 });

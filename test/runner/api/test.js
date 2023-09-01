@@ -13,79 +13,58 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2019 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2019-2020 (original work) Open Assessment Technologies SA ;
  */
 
-define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/runner/provider/dummyProvider'], function(
+define(['jquery', 'taoItems/runner/api/itemRunner', 'test/taoItems/runner/provider/dummyProvider'], function (
     $,
-    _,
     itemRunner,
     dummyProvider
 ) {
+    let noop;
+
     QUnit.module('API');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', assert => {
         assert.ok(typeof itemRunner !== 'undefined', 'The module exports something');
         assert.ok(typeof itemRunner === 'function', 'The module exports a function');
         assert.ok(typeof itemRunner.register === 'function', 'The function has a property function register');
     });
 
-    // itemRunner.register
-
     QUnit.module('Register a Provider', {
-        afterEach: function(assert) {
-            //reset the provides
-            itemRunner.providers = undefined;
+        afterEach() {
+            //reset the providers
+            itemRunner.providers = noop;
         }
     });
 
-    QUnit.test('Error without provider', function(assert) {
+    QUnit.test('Error without provider', assert => {
         assert.expect(1);
 
-        assert.throws(
-            function() {
-                itemRunner();
-            },
-            Error,
-            'An error is thrown'
-        );
+        assert.throws(() => itemRunner(), Error, 'An error is thrown');
     });
 
-    QUnit.test('Error with a wrong provider', function(assert) {
+    QUnit.test('Error with a wrong provider', assert => {
         assert.expect(3);
 
-        assert.throws(
-            function() {
-                itemRunner.register('');
-            },
-            TypeError,
-            'A name is expected'
-        );
+        assert.throws(() => itemRunner.register(''), TypeError, 'A name is expected');
+
+        assert.throws(() => itemRunner.register('testProvider'), TypeError, 'A objet is expected');
 
         assert.throws(
-            function() {
-                itemRunner.register('testProvider');
-            },
-            TypeError,
-            'A objet is expected'
-        );
-
-        assert.throws(
-            function() {
-                itemRunner.register('testProvider', {});
-            },
+            () => itemRunner.register('testProvider', {}),
             TypeError,
             'At least init or render method is expected'
         );
     });
 
-    QUnit.test('Register a minimal provider', function(assert) {
+    QUnit.test('Register a minimal provider', assert => {
         assert.expect(4);
 
         assert.ok(typeof itemRunner.providers === 'undefined', 'the itemRunner comes without a provider');
 
         itemRunner.register('testProvider', {
-            init: function() {}
+            init() {}
         });
         itemRunner();
 
@@ -97,33 +76,23 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
         );
     });
 
-    // itemRunner().init()
-
     QUnit.module('ItemRunner init', {
-        afterEach: function(assert) {
-            //reset the provides
-            itemRunner.providers = undefined;
+        afterEach() {
+            //reset the providers
+            itemRunner.providers = noop;
         }
     });
 
-    QUnit.test('Initialize the runner', function(assert) {
-        var ready = assert.async();
+    QUnit.test('Initialize the runner', assert => {
+        const ready = assert.async();
         assert.expect(4);
 
-        assert.throws(
-            function() {
-                itemRunner('dummyProvider', {});
-            },
-            Error,
-            'An error is thrown when no provider is set'
-        );
+        assert.throws(() => itemRunner('dummyProvider', {}), Error, 'An error is thrown when no provider is set');
 
         itemRunner.register('dummyProvider', dummyProvider);
 
         assert.throws(
-            function() {
-                itemRunner('zoommyProvider', {});
-            },
+            () => itemRunner('zoommyProvider', {}),
             Error,
             'An error is thrown when requesting the wrong provider'
         );
@@ -131,7 +100,7 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
         itemRunner('dummyProvider', {
             type: 'number'
         })
-            .on('init', function() {
+            .on('init', function () {
                 assert.ok(typeof this._data === 'object', 'the itemRunner context got the data assigned');
                 assert.equal(this._data.type, 'number', 'the itemRunner context got the right data assigned');
 
@@ -140,8 +109,8 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .init();
     });
 
-    QUnit.test('Get the default provider', function(assert) {
-        var ready = assert.async();
+    QUnit.test('Get the default provider', assert => {
+        const ready = assert.async();
         assert.expect(2);
 
         itemRunner.register('dummyProvider', dummyProvider);
@@ -149,7 +118,7 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
         itemRunner({
             type: 'number'
         })
-            .on('init', function() {
+            .on('init', function () {
                 assert.ok(typeof this._data === 'object', 'the itemRunner context got the data assigned');
                 assert.equal(this._data.type, 'number', 'the itemRunner context got the right data assigned');
 
@@ -158,8 +127,8 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .init();
     });
 
-    QUnit.test('Initialize the item with new data', function(assert) {
-        var ready = assert.async();
+    QUnit.test('Initialize the item with new data', assert => {
+        const ready = assert.async();
         assert.expect(2);
 
         itemRunner.register('dummyProvider', dummyProvider);
@@ -167,10 +136,9 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
         itemRunner('dummyProvider', {
             type: 'number'
         })
-            .on('init', function() {
+            .on('init', function () {
                 assert.ok(typeof this._data === 'object', 'the itemRunner context got the data assigned');
                 assert.equal(this._data.type, 'text', 'the itemRunner context got the right data assigned');
-
                 ready();
             })
             .init({
@@ -178,16 +146,18 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             });
     });
 
-    QUnit.test('No init in the provider', function(assert) {
-        var ready = assert.async();
+    QUnit.test('No init in the provider', assert => {
+        const ready = assert.async();
         assert.expect(1);
 
-        itemRunner.register('dummyProvider', _.omit(dummyProvider, 'init'));
+        const wrongProvider = Object.assign({}, dummyProvider);
+        delete wrongProvider.init;
+        itemRunner.register('wrongProvider', wrongProvider);
 
-        var runner = itemRunner('dummyProvider', {
+        itemRunner('wrongProvider', {
             type: 'search'
         })
-            .on('init', function() {
+            .on('init', () => {
                 assert.ok(true, 'init is still called');
 
                 ready();
@@ -195,20 +165,21 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .init();
     });
 
-    // itemRunner().render()
+
+
 
     QUnit.module('ItemRunner render', {
-        afterEach: function(assert) {
-            //reset the provides
-            itemRunner.providers = undefined;
+        afterEach() {
+            //reset the providers
+            itemRunner.providers = noop;
         }
     });
 
-    QUnit.test('Render an item from an HTMLElement', function(assert) {
-        var ready = assert.async();
+    QUnit.test('Render an item from an HTMLElement', assert => {
+        const ready = assert.async();
         assert.expect(5);
 
-        var container = document.getElementById('item-container');
+        const container = document.getElementById('item-container');
         assert.equal(container.id, 'item-container', 'the item container exists');
         assert.equal(container.childNodes.length, 0, 'the container has no children');
 
@@ -217,10 +188,9 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
         itemRunner('dummyProvider', {
             type: 'number'
         })
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(typeof this._data === 'object', 'the itemRunner context got the data assigned');
                 assert.equal(this._data.type, 'number', 'the itemRunner context got the right data assigned');
-
                 assert.equal(container.childNodes.length, 1, 'the container has now children');
 
                 ready();
@@ -229,21 +199,21 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .render(container);
     });
 
-    QUnit.test('Render an item from a jQueryElement', function(assert) {
-        var ready = assert.async();
+    QUnit.test('Render an item from a jQueryElement', assert => {
+        const ready = assert.async();
         assert.expect(4);
 
-        var $container = $('#item-container');
+        const $container = $('#item-container');
         assert.equal($container.length, 1, 'the item container exists');
         assert.equal($('input', $container).length, 0, 'the container does not contains an input');
 
         itemRunner.register('dummyProvider', dummyProvider);
 
-        var runner = itemRunner('dummyProvider', {
+        itemRunner('dummyProvider', {
             type: 'search'
         })
-            .on('render', function() {
-                var $input = $('input', $container);
+            .on('render', function () {
+                const $input = $('input', $container);
                 assert.equal($input.length, 1, 'the container contains an input');
                 assert.equal($input.attr('type'), 'search', 'the input has the right type');
 
@@ -253,54 +223,58 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .render($container);
     });
 
-    QUnit.test('Render an item into wrong element', function(assert) {
-        var ready = assert.async();
-        assert.expect(2);
+    QUnit.test('Render an item into wrong element', assert => {
+        const ready = assert.async();
+        assert.expect(3);
 
         itemRunner.register('dummyProvider', dummyProvider);
 
         itemRunner('dummyProvider', {
             type: 'search'
         })
-            .on('error', function(message) {
-                assert.ok(typeof message === 'string', 'An error message is given');
-                assert.ok(message.length > 0, 'A non empty message is given');
+            .on('error', err => {
+                assert.ok(err instanceof Error, 'An error is thrown');
+                assert.ok(typeof err.message === 'string', 'An error message is given');
+                assert.ok(err.message.length > 0, 'A non empty message is given');
                 ready();
             })
             .init()
             .render('item-container');
     });
 
-    QUnit.test('Render an item without element', function(assert) {
-        var ready = assert.async();
-        assert.expect(2);
+    QUnit.test('Render an item without element', assert => {
+        const ready = assert.async();
+        assert.expect(3);
 
         itemRunner.register('dummyProvider', dummyProvider);
 
         itemRunner('dummyProvider', {
             type: 'search'
         })
-            .on('error', function(message) {
-                assert.ok(typeof message === 'string', 'An error message is given');
-                assert.ok(message.length > 0, 'A non empty message is given');
+            .on('error', err => {
+                assert.ok(err instanceof Error, 'An error is thrown');
+                assert.ok(typeof err.message === 'string', 'An error message is given');
+                assert.ok(err.message.length > 0, 'A non empty message is given');
                 ready();
             })
             .init()
             .render();
     });
 
-    QUnit.test('No clear in the provider', function(assert) {
-        var ready = assert.async();
+    QUnit.test('No clear in the provider', assert => {
+        const ready = assert.async();
         assert.expect(1);
 
-        var $container = $('#item-container');
+        const $container = $('#item-container');
 
-        itemRunner.register('dummyProvider', _.omit(dummyProvider, 'render'));
+        const provider = Object.assign({}, dummyProvider);
+        delete provider.render;
+        itemRunner.register('dummyProvider', provider);
 
-        var runner = itemRunner('dummyProvider', {
+        itemRunner('dummyProvider', {
             type: 'search'
         })
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(true, 'render is still called');
 
                 ready();
@@ -309,33 +283,29 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .render($container);
     });
 
-    QUnit.test('Render sync with init async', function(assert) {
-        var ready = assert.async();
+    QUnit.test('Render sync with init async', assert => {
+        const ready = assert.async();
         assert.expect(2);
 
-        var $container = $('#item-container');
+        const $container = $('#item-container');
         assert.equal($container.length, 1, 'the item container exists');
 
         itemRunner.register(
             'dummyProvider',
-            _.defaults(
-                {
-                    init: function(data, ready) {
-                        var self = this;
-                        setTimeout(function() {
-                            self._data = data;
-                            ready();
-                        }, 100);
-                    }
-                },
-                dummyProvider
-            )
+            Object.assign({}, dummyProvider, {
+                init(data, done) {
+                    setTimeout(() => {
+                        this._data = data;
+                        done();
+                    }, 100);
+                }
+            })
         );
 
         itemRunner('dummyProvider', {
             type: 'text'
         })
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(true, 'Rendered done');
                 ready();
             })
@@ -343,34 +313,32 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .render($container);
     });
 
-    // itemRunner().clear()
-
     QUnit.module('ItemRunner clear', {
-        afterEach: function(assert) {
-            //reset the provides
-            itemRunner.providers = undefined;
+        afterEach() {
+            //reset the providers
+            itemRunner.providers = noop;
         }
     });
 
-    QUnit.test('Clear a rendered element', function(assert) {
-        var ready = assert.async();
+    QUnit.test('Clear a rendered element', assert => {
+        const ready = assert.async();
         assert.expect(4);
 
-        var $container = $('#item-container');
+        const $container = $('#item-container');
         assert.equal($container.length, 1, 'the item container exists');
         assert.equal($container.children().length, 0, 'the container has no children');
 
         itemRunner.register('dummyProvider', dummyProvider);
 
-        var runner = itemRunner('dummyProvider', {
+        itemRunner('dummyProvider', {
             type: 'search'
         })
-            .on('render', function() {
+            .on('render', function () {
                 assert.equal($container.children().length, 1, 'the container has a child');
 
                 this.clear();
             })
-            .on('clear', function() {
+            .on('clear', function () {
                 assert.equal($container.children().length, 0, 'the container children are removed');
 
                 ready();
@@ -379,21 +347,23 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .render($container);
     });
 
-    QUnit.test('No clear in the provider', function(assert) {
-        var ready = assert.async();
+    QUnit.test('No clear in the provider', assert => {
+        const ready = assert.async();
         assert.expect(1);
 
-        var $container = $('#item-container');
+        const $container = $('#item-container');
 
-        itemRunner.register('dummyProvider', _.omit(dummyProvider, 'clear'));
+        const provider = Object.assign({}, dummyProvider);
+        delete provider.clear;
+        itemRunner.register('dummyProvider', provider);
 
-        var runner = itemRunner('dummyProvider', {
+        itemRunner('dummyProvider', {
             type: 'search'
         })
-            .on('render', function() {
+            .on('render', function () {
                 this.clear();
             })
-            .on('clear', function() {
+            .on('clear', function () {
                 assert.ok(true, 'clear is still called');
 
                 ready();
@@ -402,31 +372,28 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .render($container);
     });
 
-    // itemRunner().get/setState()
-    //             .on('statechange')
-
     QUnit.module('ItemRunner state', {
-        afterEach: function(assert) {
+        afterEach() {
             //reset the provides
-            itemRunner.providers = undefined;
+            itemRunner.providers = noop;
         }
     });
 
-    QUnit.test('setState after render', function(assert) {
-        var ready = assert.async();
+    QUnit.test('setState after render', assert => {
+        const ready = assert.async();
         assert.expect(4);
 
-        var $container = $('#item-container');
+        const $container = $('#item-container');
         assert.equal($container.length, 1, 'the item container exists');
 
         itemRunner.register('dummyProvider', dummyProvider);
 
-        var runner = itemRunner('dummyProvider', {
+        itemRunner('dummyProvider', {
             type: 'number',
             value: 0
         })
-            .on('render', function() {
-                var $input = $('input', $container);
+            .on('render', function () {
+                const $input = $('input', $container);
                 assert.equal($input.length, 1, 'the container contains an input');
                 assert.equal($input.val(), 0, 'the input value is set before');
 
@@ -440,65 +407,68 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .render($container);
     });
 
-    QUnit.test('set initial state', function(assert) {
-        var ready = assert.async();
-        assert.expect(3);
+    QUnit.test('set initial state', assert => {
+        const ready = assert.async();
+        assert.expect(2);
 
-        var $container = $('#item-container');
+        const $container = $('#item-container');
         assert.equal($container.length, 1, 'the item container exists');
 
-        itemRunner.register('dummyProvider', dummyProvider);
+        itemRunner.register(
+            'fooProvider',
+            Object.assign({}, dummyProvider, {
+                setState(newState, isInitialSetStateRequest) {
+                    assert.equal(isInitialSetStateRequest, true, 'initial set state request is correct');
+                }
+            })
+        );
 
-        var runner = itemRunner('dummyProvider', {
+        itemRunner('fooProvider', {
             type: 'number'
         })
-            .on('render', function() {
-                var $input = $('input', $container);
-                assert.equal($input.length, 1, 'the container contains an input');
-                assert.equal($input.val(), 13, 'the input value has the initial state');
-
+            .on('render', function () {
                 ready();
             })
             .init()
-            .setState({ value: 13 })
-            .render($container);
+            .render($container, { state: { value: 13 } });
     });
 
-    QUnit.test('set a wrong state', function(assert) {
-        var ready = assert.async();
-        assert.expect(2);
+    QUnit.test('set a wrong state', assert => {
+        const ready = assert.async();
+        assert.expect(3);
 
         itemRunner.register('dummyProvider', dummyProvider);
 
-        var runner = itemRunner('dummyProvider', {
+        itemRunner('dummyProvider', {
             type: 'number',
             value: 0
         })
-            .on('error', function(message) {
-                assert.ok(typeof message === 'string', 'An error message is given');
-                assert.ok(message.length > 0, 'A non empty message is given');
+            .on('error', err => {
+                assert.ok(err instanceof Error, 'An error is sent in parameter');
+                assert.ok(typeof err.message === 'string', 'An error message is given');
+                assert.ok(err.message.length > 0, 'A non empty message is given');
                 ready();
             })
             .init()
             .setState([]);
     });
 
-    QUnit.test('get the current state', function(assert) {
-        var ready = assert.async();
+    QUnit.test('get the current state', assert => {
+        const ready = assert.async();
         assert.expect(7);
 
-        var $container = $('#item-container');
+        const $container = $('#item-container');
         assert.equal($container.length, 1, 'the item container exists');
 
         itemRunner.register('dummyProvider', dummyProvider);
 
-        var runner = itemRunner('dummyProvider', {
+        itemRunner('dummyProvider', {
             type: 'number',
             value: 0
         })
-            .on('render', function() {
-                var state;
-                var $input = $('input', $container);
+            .on('render', function () {
+                let state;
+                const $input = $('input', $container);
                 assert.equal($input.length, 1, 'the container contains an input');
                 assert.equal($input.val(), 0, 'the input value is set before');
 
@@ -520,21 +490,21 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .render($container);
     });
 
-    QUnit.test('listen for state change', function(assert) {
-        var ready = assert.async();
+    QUnit.test('listen for state change', assert => {
+        const ready = assert.async();
         assert.expect(5);
 
-        var $container = $('#item-container');
+        const $container = $('#item-container');
         assert.equal($container.length, 1, 'the item container exists');
 
         itemRunner.register('dummyProvider', dummyProvider);
 
-        var runner = itemRunner('dummyProvider', {
+        itemRunner('dummyProvider', {
             type: 'number',
             value: 0
         })
-            .on('statechange', function(state) {
-                var $input = $('input', $container);
+            .on('statechange', function (state) {
+                const $input = $('input', $container);
 
                 assert.ok(typeof state === 'object', 'the state is an object');
                 assert.equal($input.length, 1, 'the container contains an input');
@@ -543,9 +513,9 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
 
                 ready();
             })
-            .on('render', function() {
-                var $input = $('input', $container);
-                var evt = document.createEvent('HTMLEvents');
+            .on('render', function () {
+                const $input = $('input', $container);
+                const evt = document.createEvent('HTMLEvents');
                 evt.initEvent('change', false, true);
                 $input.val(16)[0].dispatchEvent(evt);
             })
@@ -553,30 +523,28 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .render($container);
     });
 
-    // itemRunner().getResponses
-
     QUnit.module('ItemRunner getResponses', {
-        afterEach: function(assert) {
-            //reset the provides
-            itemRunner.providers = undefined;
+        afterEach() {
+            //reset the providers
+            itemRunner.providers = noop;
         }
     });
 
-    QUnit.test('getResponses with no changes', function(assert) {
-        var ready = assert.async();
+    QUnit.test('getResponses with no changes', assert => {
+        const ready = assert.async();
         assert.expect(4);
 
-        var $container = $('#item-container');
+        const $container = $('#item-container');
         assert.equal($container.length, 1, 'the item container exists');
 
         itemRunner.register('dummyProvider', dummyProvider);
 
-        var runner = itemRunner('dummyProvider', {
+        itemRunner('dummyProvider', {
             type: 'number',
             value: 0
         })
-            .on('render', function() {
-                var responses = this.getResponses();
+            .on('render', function () {
+                const responses = this.getResponses();
 
                 assert.ok(responses instanceof Array, 'responses is an array');
                 assert.equal(responses.length, 1, 'responses contains one entry');
@@ -588,24 +556,24 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .render($container);
     });
 
-    QUnit.test('getResponses after changes', function(assert) {
-        var ready = assert.async();
+    QUnit.test('getResponses after changes', assert => {
+        const ready = assert.async();
         assert.expect(4);
 
-        var $container = $('#item-container');
+        const $container = $('#item-container');
         assert.equal($container.length, 1, 'the item container exists');
 
         itemRunner.register('dummyProvider', dummyProvider);
 
-        var runner = itemRunner('dummyProvider', {
+        itemRunner('dummyProvider', {
             type: 'number',
             value: 0
         })
-            .on('render', function() {
-                var $input = $('input', $container);
+            .on('render', function () {
+                const $input = $('input', $container);
                 $input.val(18);
 
-                var responses = this.getResponses();
+                const responses = this.getResponses();
 
                 assert.ok(responses instanceof Array, 'responses is an array');
                 assert.equal(responses.length, 1, 'responses contains one entry, the last response only');
@@ -617,31 +585,29 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .render($container);
     });
 
-    // itemRunner().on().off().trigger()
-
     QUnit.module('ItemRunner events', {
-        afterEach: function(assert) {
+        afterEach() {
             //reset the provides
-            itemRunner.providers = undefined;
+            itemRunner.providers = noop;
         }
     });
 
-    QUnit.test('multiple events binding', function(assert) {
-        var ready = assert.async();
+    QUnit.test('multiple events binding', assert => {
+        const ready = assert.async();
         assert.expect(2);
 
-        var inc = 0;
+        let inc = 0;
 
         itemRunner.register('dummyProvider', dummyProvider);
 
-        var runner = itemRunner('dummyProvider', {
+        itemRunner('dummyProvider', {
             type: 'number'
         })
-            .on('test', function() {
+            .on('test', function () {
                 assert.equal(inc, 0, 'handler called first');
                 inc++;
             })
-            .on('test', function() {
+            .on('test', function () {
                 assert.equal(inc, 1, 'first called 2nd');
                 ready();
             })
@@ -649,47 +615,43 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .trigger('test');
     });
 
-    QUnit.test('unbinding events', function(assert) {
-        var ready = assert.async();
+    QUnit.test('unbinding events', assert => {
+        const ready = assert.async();
         assert.expect(1);
-
-        var inc = 0;
 
         itemRunner.register('dummyProvider', dummyProvider);
 
-        var runner = itemRunner('dummyProvider', {
+        itemRunner('dummyProvider', {
             type: 'number'
         })
-            .on('test', function() {
+            .on('test', function () {
                 assert.ok(false, 'Should not be called');
             })
-            .on('test', function() {
+            .on('test', function () {
                 assert.ok(false, 'should not be callled');
             })
             .init()
             .off('test')
             .trigger('test');
 
-        setTimeout(function() {
+        setTimeout(() => {
             assert.ok(true, 'handlers not called after off');
             ready();
         }, 10);
     });
 
     QUnit.module('ItemRunner renderFeedbacks', {
-        afterEach: function(assert) {
+        afterEach() {
             //reset the providers
-            delete itemRunner.providers;
+            itemRunner.providers = noop;
         }
     });
 
-    QUnit.test('renderFeedbacks with empty queue', function(assert) {
-        var ready = assert.async();
-        var $container;
-
+    QUnit.test('renderFeedbacks with empty queue', assert => {
+        const ready = assert.async();
         assert.expect(3);
 
-        $container = $('#item-container');
+        const $container = $('#item-container');
         assert.equal($container.length, 1, 'the item container exists');
 
         itemRunner.register('dummyProvider', dummyProvider);
@@ -698,8 +660,8 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             type: 'number',
             value: 0
         })
-            .on('render', function() {
-                this.renderFeedbacks([], [], function(renderingQueue) {
+            .on('render', function () {
+                this.renderFeedbacks([], [], function (renderingQueue) {
                     assert.ok(renderingQueue instanceof Array, 'renderingQueue is an array');
                     assert.equal(renderingQueue.length, 0, 'renderingQueue is empty');
 
@@ -710,13 +672,11 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             .render($container);
     });
 
-    QUnit.test('getResponses after changes', function(assert) {
-        var ready = assert.async();
-        var $container;
-
+    QUnit.test('getResponses after changes', assert => {
+        const ready = assert.async();
         assert.expect(4);
 
-        $container = $('#item-container');
+        const $container = $('#item-container');
         assert.equal($container.length, 1, 'the item container exists');
 
         itemRunner.register('dummyProvider', dummyProvider);
@@ -725,29 +685,31 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
             type: 'number',
             value: 0
         })
-            .on('render', function() {
-                this.renderFeedbacks({ f1: 'feedback1', f2: 'feedback2', f3: 'feedback3' }, ['f2'], function(
-                    renderingQueue
-                ) {
-                    assert.ok(renderingQueue instanceof Array, 'renderingQueue is an array');
-                    assert.equal(renderingQueue.length, 1, 'renderingQueue contains one entry');
-                    assert.equal(renderingQueue[0], 'feedback2', 'renderingQueue contains selected entry');
+            .on('render', function () {
+                this.renderFeedbacks(
+                    { f1: 'feedback1', f2: 'feedback2', f3: 'feedback3' },
+                    ['f2'],
+                    function (renderingQueue) {
+                        assert.ok(renderingQueue instanceof Array, 'renderingQueue is an array');
+                        assert.equal(renderingQueue.length, 1, 'renderingQueue contains one entry');
+                        assert.equal(renderingQueue[0], 'feedback2', 'renderingQueue contains selected entry');
 
-                    ready();
-                });
+                        ready();
+                    }
+                );
             })
             .init()
             .render($container);
     });
 
-    QUnit.test('access item data', function(assert) {
-        var ready = assert.async();
-        var dummyData = {
+    QUnit.test('access item data', assert => {
+        const ready = assert.async();
+        const dummyData = {
             alpha: 1,
             beta: 'sample string',
             gamma: {
                 delta: 'string 2',
-                epsilon: 'string 2',
+                epsilon: 'string 2'
             }
         };
 
@@ -756,9 +718,342 @@ define(['jquery', 'lodash', 'taoItems/runner/api/itemRunner', 'test/taoItems/run
         itemRunner.register('dummyProvider', dummyProvider);
 
         itemRunner('dummyProvider', dummyData)
-            .on('init', function() {
+            .on('init', function () {
                 assert.deepEqual(this.getData(), dummyData, 'getData() returns expected data');
                 ready();
+            })
+            .init();
+    });
+
+    QUnit.test('set new item data', assert => {
+        const ready = assert.async();
+        assert.expect(3);
+
+        const dummyData = {
+            alpha: 1,
+            beta: 'sample string',
+            gamma: {
+                delta: 'string 2',
+                epsilon: 'string 2'
+            }
+        };
+
+        const $container = $('#item-container');
+        assert.equal($container.length, 1, 'the item container exists');
+
+        itemRunner.register('dummyProvider', dummyProvider);
+
+        itemRunner('dummyProvider', {})
+            .on('init', function () {
+                assert.deepEqual(this.getData(), {}, 'getData() returns empty data');
+            })
+            .on('render', function () {
+                this.setData(dummyData).then(() => {
+                    assert.deepEqual(this.getData(), dummyData, 'getData() returns new data');
+                    ready();
+                });
+            })
+            .init()
+            .render($container);
+    });
+
+    QUnit.module('ItemRunner suspend, resume and close', {
+        afterEach() {
+            //reset the provides
+            itemRunner.providers = noop;
+        }
+    });
+
+    QUnit.test('Suspend has no effect before rendering', assert => {
+        const ready = assert.async();
+        assert.expect(2);
+
+        itemRunner.register(
+            'dummyProvider',
+            Object.assign({}, dummyProvider, {
+                suspend() {
+                    assert.ok(false, 'The provider should not be executed');
+                }
+            })
+        );
+
+        itemRunner('dummyProvider', {
+            type: 'number'
+        })
+            .on('init', function () {
+                assert.equal(this.isSuspended(), false, 'The runner does not start suspended');
+
+                this.suspend().then(() => {
+                    assert.equal(this.isSuspended(), false, 'We cannot suspend it before rendered');
+                    ready();
+                });
+            })
+            .init();
+    });
+
+    QUnit.test('Suspend/resume calls the providers', assert => {
+        const ready = assert.async();
+        const $container = $('#item-container');
+        assert.expect(5);
+
+        itemRunner.register(
+            'dummyProvider',
+            Object.assign({}, dummyProvider, {
+                suspend() {
+                    assert.ok(true, 'The provider suspends the item');
+                    return new Promise(resolve => setTimeout(resolve, 20));
+                },
+                resume() {
+                    assert.ok(true, 'The provider resumes the item');
+                    return new Promise(resolve => setTimeout(resolve, 10));
+                }
+            })
+        );
+
+        itemRunner('dummyProvider', {
+            type: 'number'
+        })
+            .on('render', function () {
+                assert.equal(this.isSuspended(), false, 'The runner does not start suspended');
+
+                this.suspend()
+                    .then(() => {
+                        assert.equal(this.isSuspended(), true, 'The runner is now suspended');
+                        return this.resume();
+                    })
+                    .then(() => {
+                        assert.equal(this.isSuspended(), false, 'The runner is resumed');
+                        ready();
+                    });
+            })
+            .init()
+            .render($container);
+    });
+
+    QUnit.test('Suspend and resume are asynchronous', assert => {
+        const ready = assert.async();
+        const $container = $('#item-container');
+        assert.expect(8);
+
+        itemRunner.register(
+            'dummyProvider',
+            Object.assign({}, dummyProvider, {
+                suspend() {
+                    assert.ok(true, 'The provider suspends the item');
+                    return new Promise(resolve => setTimeout(resolve, 10));
+                },
+                resume() {
+                    assert.ok(true, 'The provider resumes the item');
+                    return new Promise(resolve => setTimeout(resolve, 20));
+                }
+            })
+        );
+
+        itemRunner('dummyProvider', {
+            type: 'number'
+        })
+            .on('render', function () {
+                assert.equal(this.isSuspended(), false, 'The runner starts resumed');
+                const suspendPromise = this.suspend();
+                this.resume();
+                suspendPromise
+                    .then(() => this.resume())
+                    .then(() => {
+                        assert.equal(this.isSuspended(), false, 'The runner is resumed');
+                        return this.suspend();
+                    })
+                    .then(() => {
+                        assert.equal(this.isSuspended(), true, 'The runner is suspendd');
+                        return this.suspend(); //not called
+                    })
+                    .then(() => this.resume())
+                    .then(() => {
+                        assert.equal(this.isSuspended(), false, 'The runner is resumed');
+                        return this.resume(); //not called
+                    })
+                    .then(ready);
+            })
+            .init()
+            .render($container);
+    });
+
+    QUnit.test('Close has no effect before rendering', assert => {
+        const ready = assert.async();
+        assert.expect(2);
+
+        itemRunner.register(
+            'dummyProvider',
+            Object.assign({}, dummyProvider, {
+                close() {
+                    assert.ok(false, 'The provider should not be executed');
+                }
+            })
+        );
+
+        itemRunner('dummyProvider', {
+            type: 'number'
+        })
+            .on('init', function () {
+                assert.equal(this.isClosed(), false, 'The runner is closed unless rendered');
+                this.close().then(() => {
+                    assert.equal(this.isClosed(), false, 'The runner remains closed unless rendered');
+                    ready();
+                });
+            })
+            .init();
+    });
+
+    QUnit.test('Close/resume calls the providers', assert => {
+        const ready = assert.async();
+        const $container = $('#item-container');
+        assert.expect(5);
+
+        itemRunner.register(
+            'dummyProvider',
+            Object.assign({}, dummyProvider, {
+                close() {
+                    assert.ok(true, 'The provider closes the item');
+                    return new Promise(resolve => setTimeout(resolve, 20));
+                },
+                resume() {
+                    assert.ok(true, 'The provider resumes the item');
+                    return new Promise(resolve => setTimeout(resolve, 10));
+                }
+            })
+        );
+
+        itemRunner('dummyProvider', {
+            type: 'number'
+        })
+            .on('render', function () {
+                assert.equal(this.isClosed(), false, 'The runner does not start closed');
+                this.close()
+                    .then(() => {
+                        assert.equal(this.isClosed(), true, 'The runner is now closed');
+                        return this.resume();
+                    })
+                    .then(() => {
+                        assert.equal(this.isClosed(), false, 'The runner is resumed');
+                        ready();
+                    });
+            })
+            .init()
+            .render($container);
+    });
+
+    QUnit.test('Close/resume are asynchronous', assert => {
+        const ready = assert.async();
+        const $container = $('#item-container');
+        assert.expect(8);
+
+        itemRunner.register(
+            'dummyProvider',
+            Object.assign({}, dummyProvider, {
+                close() {
+                    assert.ok(true, 'The provider closes the item');
+                    return new Promise(resolve => setTimeout(resolve, 10));
+                },
+                resume() {
+                    assert.ok(true, 'The provider resumes the item');
+                    return new Promise(resolve => setTimeout(resolve, 30));
+                }
+            })
+        );
+
+        itemRunner('dummyProvider', {
+            type: 'number'
+        })
+            .on('render', function () {
+                assert.equal(this.isClosed(), false, 'The runner does not start closed');
+                const closePromise = this.close();
+                this.resume();
+                closePromise
+                    .then(() => this.resume())
+                    .then(() => {
+                        assert.equal(this.isClosed(), false, 'The runner is resumed');
+                        return this.close();
+                    })
+                    .then(() => {
+                        assert.equal(this.isClosed(), true, 'The runner is still closed');
+                        return this.close(); //not called
+                    })
+                    .then(() => this.resume())
+                    .then(() => {
+                        assert.equal(this.isClosed(), false, 'The runner is resumed');
+                        return this.resume(); //not called
+                    })
+                    .then(ready);
+            })
+            .init()
+            .render($container);
+    });
+
+    QUnit.test('get item runner options', assert => {
+        const ready = assert.async();
+        const options = {
+            settings: {
+                muted: true,
+                baseVolume: 75
+            }
+        };
+
+        assert.expect(1);
+
+        itemRunner.register('dummyProvider', dummyProvider);
+
+        itemRunner('dummyProvider', {}, options)
+            .on('init', function () {
+                assert.deepEqual(this.getOptions(), options, 'the options are correct');
+                ready();
+            })
+            .init();
+    });
+
+    QUnit.module('ItemRunner options', {
+        afterEach() {
+            //reset the provides
+            itemRunner.providers = noop;
+        }
+    });
+
+    QUnit.test('update item runner options', assert => {
+        const ready = assert.async();
+        const initialOptions = {
+            settings: {
+                muted: true,
+                baseVolume: 75
+            }
+        };
+        const newOptions = {
+            settings: {
+                muted: false,
+                baseVolume: 50
+            }
+        };
+
+        assert.expect(3);
+
+        itemRunner.register(
+            'dummyProvider',
+            Object.assign(
+                {
+                    setOptions(receivedOptions) {
+                        assert.deepEqual(receivedOptions, newOptions, 'the provider receives the updated options');
+                        return Promise.resolve();
+                    }
+                },
+                dummyProvider
+            )
+        );
+
+        itemRunner('dummyProvider', {}, initialOptions)
+            .on('init', function () {
+                assert.deepEqual(this.getOptions(), initialOptions, 'initial options are correct');
+
+                this.setOptions(newOptions).then(() => {
+                    assert.deepEqual(this.getOptions(), newOptions, 'updated options are correct');
+                    ready();
+                });
             })
             .init();
     });

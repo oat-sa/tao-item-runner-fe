@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2014-2019 (original work) Open Assessment Technlogies SA (under the project TAO-PRODUCT);
+ * Copyright (c) 2014-2021 (original work) Open Assessment Technlogies SA (under the project TAO-PRODUCT);
  *
  */
 
@@ -21,7 +21,6 @@
  * @author Bertrand Chevrier <bertrand@taotesting.com>
  */
 import $ from 'jquery';
-import _ from 'lodash';
 import eventifier from 'core/eventifier';
 import assetManagerFactory from 'taoItems/assets/manager';
 
@@ -56,11 +55,9 @@ import assetManagerFactory from 'taoItems/assets/manager';
  *
  * @returns {itemRunner}
  */
-var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) {
-    var provider, providers, assetManager;
-
+const itemRunnerFactory = function itemRunnerFactory(providerName, data = {}, options = {}) {
     //flow structure to manage sync calls in an async context.
-    var flow = {
+    const flow = {
         init: {
             done: false,
             pending: []
@@ -72,29 +69,28 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
     };
 
     //optional params based on type
-    if (_.isPlainObject(providerName)) {
+    if (typeof providerName === 'object') {
         data = providerName;
-        providerName = undefined;
+        providerName = void 0;
     }
-
-    data = data || {};
-    options = options || {};
 
     /*
      * Select the provider
      */
-    providers = itemRunnerFactory.providers;
+    const providers = itemRunnerFactory.providers;
 
     //check a provider is available
-    if (!providers || _.size(providers) === 0) {
-        throw new Error('No provider regitered');
+    if (!providers || Object.keys(providers).length === 0) {
+        throw new Error('No provider registered');
     }
 
-    if (_.isString(providerName) && providerName.length > 0) {
+    let provider;
+
+    if (typeof providerName === 'string' && providerName.length > 0) {
         provider = providers[providerName];
-    } else if (_.size(providers) === 1) {
+    } else if (Object.keys(providers).length === 1) {
         //if there is only one provider, then we take this one
-        providerName = _.keys(providers)[0];
+        providerName = Object.keys(providers)[0];
         provider = providers[providerName];
     }
 
@@ -104,11 +100,14 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
     }
 
     //set up a default assetManager using a "do nothing" strategy
-    assetManager =
+    const assetManager =
         options.assetManager ||
         assetManagerFactory(function defaultStrategy(url) {
             return url.toString();
         });
+
+    let suspended = false;
+    let closed = false;
 
     /**
      * The itemRunner
@@ -131,13 +130,13 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
          * @see taoItems/asset/manager
          * @type {AssetManager}
          */
-        assetManager: assetManager,
+        assetManager,
 
         /**
          * To give options to the item runner provider
          * @type {Object}
          */
-        options: options,
+        options,
 
         /**
          * Initialize the runner.
@@ -146,22 +145,19 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
          *
          * @fires itemRunner#init
          */
-        init: function(newData) {
-            var self = this;
-
+        init(newData) {
             /**
              * Call back when init is done
              */
-            var initDone = function initDone() {
+            const initDone = () => {
                 //manage pending tasks the first time
                 if (flow.init.done === false) {
                     flow.init.done = true;
 
-                    _.forEach(flow.init.pending, function(pendingTask) {
-                        if (_.isFunction(pendingTask)) {
-                            pendingTask.call(self);
-                        }
-                    });
+                    flow.init.pending
+                        .filter(pendingTask => typeof pendingTask === 'function')
+                        .forEach(pendingTask => pendingTask());
+
                     flow.init.pending = [];
                 }
 
@@ -169,15 +165,15 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
                  * the runner has initialized correclty the item
                  * @event itemRunner#init
                  */
-                self.trigger('init');
+                this.trigger('init');
             };
 
             //merge data
             if (newData) {
-                data = _.merge(data, newData);
+                data = Object.assign(data, newData);
             }
 
-            if (_.isFunction(provider.init)) {
+            if (typeof provider.init === 'function') {
                 /**
                  * Calls provider's initialization with item data.
                  * @callback InitItemProvider
@@ -196,15 +192,18 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
          * Configure the assetManager
          * @see taoItems/assets/manager
          * @param {AssetStrategy[]} strategies - the resolving strategies
-         * @param {Object} [data] - the context data
-         * @param {Object} [options] - the asset manager options
+         * @param {Object} [contextData] - the context data
+         * @param {Object} [assetManagerOptions] - the asset manager options
          * @returns {itemRunner} to chain calls
          */
-        assets: function assets(strategies, data, options) {
+        assets(strategies, contextData, assetManagerOptions) {
             try {
-                this.assetManager = assetManagerFactory(strategies, data, options);
+                this.assetManager = assetManagerFactory(strategies, contextData, assetManagerOptions);
             } catch (err) {
-                this.trigger('error', 'Something was wrong while configuring the asset manager : ' + err);
+                this.trigger(
+                    'error',
+                    new Error(`Something was wrong while configuring the asset manager : ${err.message}`)
+                );
             }
 
             return this;
@@ -214,6 +213,7 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
          * Initialize the current item.
          *
          * @param {HTMLElement|jQueryElement} elt - the DOM element that is going to contain the rendered item.
+         * @param {Object} [newOptions] - to update the runner options
          * @returns {itemRunner} to chain calls
          *
          * @fires itemRunner#ready
@@ -223,22 +223,19 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
          * @fires itemRunner#statechange the provider is reponsible to trigger this event
          * @fires itemRunner#responsechange  the provider is reponsible to trigger this event
          */
-        render: function(elt, options) {
-            var self = this;
-
+        render(elt, newOptions = {}) {
             /**
              * Call back when render is done
              */
-            var renderDone = function renderDone() {
+            const renderDone = () => {
                 //manage pending tasks the first time
                 if (flow.render.done === false) {
                     flow.render.done = true;
 
-                    _.forEach(flow.render.pending, function(pendingTask) {
-                        if (_.isFunction(pendingTask)) {
-                            pendingTask.call(self);
-                        }
-                    });
+                    flow.render.pending
+                        .filter(pendingTask => typeof pendingTask === 'function')
+                        .forEach(pendingTask => pendingTask());
+
                     flow.render.pending = [];
                 }
 
@@ -246,35 +243,36 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
                  * The item is rendered
                  * @event itemRunner#render
                  */
-                self.trigger('render');
+                this.trigger('render');
 
                 /**
                  * The item is ready.
                  * Alias of {@link itemRunner#render}
                  * @event itemRunner#ready
                  */
-                self.trigger('ready');
+                this.trigger('ready');
             };
 
-            options = _.defaults(options || {}, { state: {} });
+            options = Object.assign(options || {}, newOptions);
+            if (!options.state) {
+                options.state = {};
+            }
 
             //check elt
             if (!(elt instanceof HTMLElement) && !(elt instanceof $)) {
-                return self.trigger(
+                return this.trigger(
                     'error',
-                    'A valid HTMLElement (or a jquery element) at least is required to render the item'
+                    new Error('A valid HTMLElement (or a jquery element) at least is required to render the item')
                 );
             }
 
             //set item state to restore item state after rendering if the provider enables it
             if (options.state) {
-                this.setState(options.state);
+                this.setState(options.state, true);
             }
 
             if (flow.init.done === false) {
-                flow.init.pending.push(function() {
-                    this.render(elt, options);
-                });
+                flow.init.pending.push(() => this.render(elt, options));
             } else {
                 //we keep a reference to the container
                 if (elt instanceof $) {
@@ -285,7 +283,7 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
 
                 //the state will be applied only when the rendering is made
 
-                if (_.isFunction(provider.render)) {
+                if (typeof provider.render === 'function') {
                     /**
                      * Calls the provider's render
                      * @callback RendertItemProvider
@@ -309,20 +307,19 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
          *
          * @fires itemRunner#clear
          */
-        clear: function() {
-            var self = this;
-
+        clear() {
             /**
              * Call back when clear is done
              */
-            var clearDone = function clearDone() {
+            const clearDone = () => {
                 /**
                  * The item is ready.
                  * @event itemRunner#clear
                  */
-                self.trigger('clear');
+                this.trigger('clear');
             };
-            if (_.isFunction(provider.clear)) {
+
+            if (typeof provider.clear === 'function') {
                 /**
                  * Calls the provider's clear
                  * @callback ClearItemProvider
@@ -342,17 +339,16 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
          *
          * @returns {Object|Null} state
          */
-        getState: function() {
-            var state = null;
-            if (_.isFunction(provider.getState)) {
+        getState() {
+            if (typeof provider.getState === 'function') {
                 /**
                  * Calls the provider's getState
                  * @callback GetStateItemProvider
                  * @returns {Object} the state
                  */
-                state = provider.getState.call(this);
+                return provider.getState.call(this);
             }
-            return state;
+            return null;
         },
 
         /**
@@ -360,44 +356,75 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
          * This should have the effect to restore the item state.
          *
          * @param {Object} state - the new state
+         * @param {boolean} [isInitialStateRestore] - state restoring or not
          * @returns {itemRunner}
          *
          * @fires itemRunner#error if the state type doesn't match
          */
-        setState: function(state) {
-            if (!_.isPlainObject(state)) {
+        setState(state, isInitialStateRestore = false) {
+            if (!state || typeof state !== 'object' || Array.isArray(state)) {
                 return this.trigger(
                     'error',
-                    "The item's state must be a JavaScript Plain Object: " + typeof state + ' given'
+                    new Error(`The item's state must be a JavaScript Plain Object: ${typeof state} given`)
                 );
             }
 
             //the state will be applied only when the rendering is made
             if (flow.render.done === false) {
-                flow.render.pending.push(function() {
-                    this.setState(state);
-                });
-            } else {
-                if (_.isFunction(provider.setState)) {
-                    /**
-                     * Calls the provider's setState
-                     * @callback SetStateItemProvider
-                     * @param {Object} state -  the state to set
-                     */
-                    provider.setState.call(this, state);
-                }
+                flow.render.pending.push(() => this.setState(state, isInitialStateRestore));
+            } else if (typeof provider.setState === 'function') {
+                /**
+                 * Calls the provider's setState
+                 * @callback SetStateItemProvider
+                 * @param {Object} state -  the state to set
+                 */
+                provider.setState.call(this, state, isInitialStateRestore);
             }
             return this;
         },
-
 
         /**
          * Get the item data.
          *
          * @returns {Object} the item's data
          */
-        getData: function() {
+        getData() {
             return data;
+        },
+
+        /**
+         * Replaces item data in rendered item
+         * @param {object} itemData
+         * @returns {Promise}
+         */
+        setData(itemData) {
+            data = itemData;
+            if (typeof provider.setData === 'function') {
+                return provider.setData.call(this, itemData);
+            }
+            return Promise.resolve();
+        },
+
+        /**
+         * Get the item runner options.
+         *
+         * @returns {Object} the item rendering options
+         */
+        getOptions() {
+            return this.options;
+        },
+
+        /**
+         * Replaces item runner's options.
+         * @param {Object} newOptions - the options to set
+         * @returns {Promise}
+         */
+        setOptions(newOptions = {}) {
+            this.options = newOptions;
+            if (typeof provider.setOptions === 'function') {
+                return provider.setOptions.call(this, this.options);
+            }
+            return Promise.resolve();
         },
 
         /**
@@ -405,17 +432,16 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
          *
          * @returns {Object} the item's responses
          */
-        getResponses: function() {
-            var responses = {};
-            if (_.isFunction(provider.getResponses)) {
+        getResponses() {
+            if (typeof provider.getResponses === 'function') {
                 /**
                  * Calls the provider's getResponses
                  * @callback GetResponsesItemProvider
                  * @returns {Object} the responses
                  */
-                responses = provider.getResponses.call(this);
+                return provider.getResponses.call(this);
             }
-            return responses;
+            return {};
         },
 
         /**
@@ -423,7 +449,7 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
          *
          * @param {Object|Array} feedbacks - all feedbacks of the item
          * @param {Object|Array} itemSession - determine feedbacks which should be displayed
-         * @param {function} done(renderingQueue) - runs after loading feedbacks into the item
+         * @param {function} done - runs after loading feedbacks into the item
          *      # have parameter {Object|Array} renderingQueue with prepared queue of the feedbacks for displaying to the user
          *
          *
@@ -433,11 +459,71 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
          *      renderingQueue; // {'feedback2'}
          *    });
          */
-        renderFeedbacks: function renderFeedbacks(feedbacks, itemSession, done) {
-            if (_.isFunction(provider.renderFeedbacks)) {
+        renderFeedbacks(feedbacks, itemSession, done) {
+            if (typeof provider.renderFeedbacks === 'function') {
                 provider.renderFeedbacks.call(this, feedbacks, itemSession, done);
             }
-        }
+        },
+
+        /**
+         * Call the provider's suspend method
+         * @returns {Promise}
+         */
+        suspend() {
+            if (!suspended && flow.render.done && typeof provider.suspend === 'function') {
+                return provider.suspend.call(this).then(result => {
+                    suspended = true;
+                    return result;
+                });
+            }
+            return Promise.resolve();
+        },
+
+        /**
+         * Call the provider's hide method
+         * @returns {Promise}
+         */
+        close() {
+            if (!closed && flow.render.done && typeof provider.close === 'function') {
+                return provider.close.call(this).then(result => {
+                    closed = true;
+                    return result;
+                });
+            }
+            return Promise.resolve();
+        },
+
+        /**
+         * Call the provider's resume method.
+         * We can resume a previously suspended or closed item.
+         * @returns {Promise}
+         */
+        resume() {
+            if ( (suspended || closed) && flow.render.done && typeof provider.resume === 'function') {
+                return provider.resume.call(this).then(result => {
+                    suspended = false;
+                    closed = false;
+                    return result;
+                });
+            }
+            return Promise.resolve();
+        },
+
+        /**
+         * Is the item runner suspended
+         * @returns {boolean} true if suspended
+         */
+        isSuspended() {
+            return suspended;
+        },
+
+        /**
+         * Is the item runner closed
+         * @returns {boolean} true if closed
+         */
+        isClosed(){
+            return closed;
+        },
     });
 };
 
@@ -459,10 +545,13 @@ var itemRunnerFactory = function itemRunnerFactory(providerName, data, options) 
  */
 itemRunnerFactory.register = function registerProvider(name, provider) {
     //type checking
-    if (!_.isString(name) || name.length <= 0) {
+    if (typeof name !== 'string' || name.length <= 0) {
         throw new TypeError('It is required to give a name to your provider.');
     }
-    if (!_.isPlainObject(provider) || (!_.isFunction(provider.init) && !_.isFunction(provider.render))) {
+    if (
+        typeof provider !== 'object' ||
+        (typeof provider.init !== 'function' && typeof provider.render !== 'function')
+    ) {
         throw new TypeError('A provider is an object that contains at least an init function or a render function.');
     }
 
