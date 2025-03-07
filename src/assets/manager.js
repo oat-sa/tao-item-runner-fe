@@ -237,7 +237,7 @@ var assetManagerFactory = function assetManagerFactory(strategies, data, options
             const resolvedResourceUri = this.resolveBy('taomedia', resourceUri);
             const params = urlUtil.parse(resolvedResourceUri).query.uri;
             const encodedMetadataUri = encodeURIComponent(metadataUri);
-            return `${url}?${encodedMetadataUri}${params}`;
+            return `${url}?metadataUri=${encodedMetadataUri}&resourceUri=${params}`;
         },
 
         /**
