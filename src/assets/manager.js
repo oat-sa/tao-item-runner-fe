@@ -233,13 +233,6 @@ var assetManagerFactory = function assetManagerFactory(strategies, data, options
             return resolved;
         },
 
-        resolveTranscription: function resolveTranscription(url, metadataUri, resourceUri) {
-            const resolvedResourceUri = this.resolveBy('taomedia', resourceUri);
-            const params = urlUtil.parse(resolvedResourceUri).query.uri;
-            const encodedMetadataUri = encodeURIComponent(metadataUri);
-            return `${url}?${encodedMetadataUri}${params}`;
-        },
-
         /**
          * When the cache is used, it could be useful to clear the cache
          */
