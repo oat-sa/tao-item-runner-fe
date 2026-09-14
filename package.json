@@ -71,5 +71,9 @@
         "select2": "3.5.1",
         "tooltip.js": "1.3.3"
     },
-    "prettier": "@oat-sa/prettier-config"
+    "prettier": "@oat-sa/prettier-config",
+    "overrides": {
+        "@babel/traverse": "^7.23.2",
+        "@babel/core": "^7.29.6"
+    }
 }
